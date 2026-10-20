@@ -1,0 +1,60 @@
+import type { Config } from "tailwindcss";
+
+const config: Config = {
+  content: [
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          50: "#eff6ff",
+          100: "#dbeafe",
+          200: "#bfdbfe",
+          300: "#93c5fd",
+          400: "#60a5fa",
+          500: "#3b82f6",
+          600: "#2563eb",
+          700: "#1d4ed8",
+          800: "#1e40af",
+          900: "#1e3a8a",
+          950: "#172554",
+        },
+        fintech: {
+          50: "#ecfdf5",
+          100: "#d1fae5",
+          200: "#a7f3d0",
+          500: "#10b981",
+          600: "#059669",
+          700: "#047857",
+          800: "#065f46",
+          900: "#064e3b",
+        },
+        warning: {
+          50: "#fffbeb",
+          500: "#f59e0b",
+          600: "#d97706",
+          700: "#b45309",
+        },
+      },
+      fontSize: {
+        "senior-base": "1.25rem",     // 20px
+        "senior-lg": "1.5rem",        // 24px
+        "senior-xl": "1.875rem",      // 30px
+        "senior-2xl": "2.25rem",      // 36px
+      },
+      minHeight: {
+        "touch": "48px",
+      },
+      minWidth: {
+        "touch": "48px",
+      },
+    },
+  },
+  plugins: [],
+};
+
+export default config;
