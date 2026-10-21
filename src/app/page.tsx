@@ -146,13 +146,13 @@ export default function HomePage() {
                 Aarti Didi • आरती दीदी (AI Mentor)
               </span>
               <SpeechPlayer
-                text="Namaste! Do not hesitate to make mistakes. We will practice speaking simple English together, step by step."
-                label="Listen to Didi"
+                text="Namaste ji! Arrey, do not worry about making mistakes at all. We will learn simple, everyday Indian English together, step by step, na?"
+                label="Listen to Aarti Didi"
                 className="py-1.5 px-3 text-xs"
               />
             </div>
             <p className="text-base sm:text-lg font-medium text-slate-700 dark:text-slate-300">
-              &ldquo;नमस्ते! गलती करने से बिल्कुल मत डरिए। आप हिंग्लिश में भी बोल सकते हैं। मैं आपको सबसे सहज और स्वाभाविक तरीका बताऊँगी।&rdquo;
+              &ldquo;नमस्ते जी! गलती करने से बिल्कुल मत डरिए। आप अपनी बात हिंग्लिश में भी बोल सकती हैं। मैं आपकी बड़ी बहन और सहेली की तरह आपको सबसे सहज और स्वाभाविक तरीका सिखाऊँगी।&rdquo;
             </p>
           </div>
         </div>
