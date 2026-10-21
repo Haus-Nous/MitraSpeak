@@ -234,8 +234,19 @@ async function runTests() {
     assert(verifyMistakeRes.body.verification.encouragingMessageHindi.length > 0, 'Provided encouraging mentor advice in Hindi');
     assert(verifyMistakeRes.body.pointsAwarded === 20, 'Awarded 20 fluency points for practice');
 
-    // 9.3 Verify perfect attempt
-    const verifyPerfectRes = await makeRequest('/api/translate-coach', {
+    // 9.4 Oral Challenge Retrieval & Verification
+    console.log('\n[Test Suite 10: Aarti Didi Oral Hindi-to-English Challenges]');
+    const challengesRes = await makeRequest('/api/translate-coach', { method: 'GET' });
+    assert(challengesRes.status === 200, 'GET /api/translate-coach returns 200 OK');
+    assert(challengesRes.body.success === true, 'Oral challenges response has success: true');
+    assert(Array.isArray(challengesRes.body.challenges) && challengesRes.body.challenges.length === 8, 'Returns exactly 8 curated Indian oral challenges');
+    const firstChallenge = challengesRes.body.challenges[0];
+    assert(firstChallenge.didiSpeechHindi.includes('आरती दीदी') || firstChallenge.didiSpeechHindi.includes('सुनिए'), 'Challenge contains Aarti Didi oral Hindi prompt speech');
+    assert(firstChallenge.idealEnglish.length > 0, 'Challenge provides ideal English sentence');
+    assert(firstChallenge.phoneticHindi.length > 0, 'Challenge provides Devanagari phonetics');
+
+    // Verify converting the oral challenge
+    const challengeVerifyRes = await makeRequest('/api/translate-coach', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -243,14 +254,13 @@ async function runTests() {
       },
       body: {
         action: 'verify',
-        hindiText: 'मुझे कल सुबह जल्दी उठना है क्योंकि बच्चों का स्कूल है',
-        targetEnglish: transRes.body.translation.idealEnglish,
-        userAttempt: transRes.body.translation.idealEnglish,
+        hindiText: firstChallenge.hindiPrompt,
+        targetEnglish: firstChallenge.idealEnglish,
+        userAttempt: firstChallenge.idealEnglish,
       },
     });
-    assert(verifyPerfectRes.status === 200, 'Verify perfect sentence returns 200 OK');
-    assert(verifyPerfectRes.body.verification.score >= 95, 'Perfect sentence achieves high fluency score >= 95');
-    assert(verifyPerfectRes.body.verification.mistakes.length === 0, 'Zero mistakes flagged on perfect sentence');
+    assert(challengeVerifyRes.status === 200, 'Converting oral challenge attempt returns 200 OK');
+    assert(challengeVerifyRes.body.verification.score >= 95, 'Accurate oral conversion receives high score');
 
     console.log(`\n===========================================`);
     console.log(`TOTAL TESTS: ${passed + failed} | PASSED: ${passed} | FAILED: ${failed}`);

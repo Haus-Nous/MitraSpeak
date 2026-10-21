@@ -145,11 +145,22 @@ export default function HomePage() {
               <span className="font-black text-xl text-emerald-800 dark:text-emerald-400">
                 Aarti Didi • आरती दीदी (AI Mentor)
               </span>
-              <SpeechPlayer
-                text="Namaste ji! Arrey, do not worry about making mistakes at all. We will learn simple, everyday Indian English together, step by step, na?"
-                label="Listen to Aarti Didi"
-                className="py-1.5 px-3 text-xs"
-              />
+              <div className="flex items-center gap-2">
+                <SpeechPlayer
+                  text="नमस्ते जी! गलती करने से बिल्कुल मत डरिए। हम साथ मिलकर बहुत सरल अंग्रेजी सीखेंगे।"
+                  label="दीदी से सुनें (Hindi)"
+                  lang="hi-IN"
+                  femaleVoice={true}
+                  className="py-1 px-2.5 text-xs"
+                />
+                <SpeechPlayer
+                  text="Namaste ji! Arrey, do not worry about making mistakes at all. We will learn simple, everyday Indian English together, step by step, na?"
+                  label="English Voice"
+                  lang="en-IN"
+                  femaleVoice={true}
+                  className="py-1 px-2.5 text-xs"
+                />
+              </div>
             </div>
             <p className="text-base sm:text-lg font-medium text-slate-700 dark:text-slate-300">
               &ldquo;नमस्ते जी! गलती करने से बिल्कुल मत डरिए। आप अपनी बात हिंग्लिश में भी बोल सकती हैं। मैं आपकी बड़ी बहन और सहेली की तरह आपको सबसे सहज और स्वाभाविक तरीका सिखाऊँगी।&rdquo;

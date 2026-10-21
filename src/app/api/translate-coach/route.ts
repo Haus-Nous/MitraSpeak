@@ -7,9 +7,26 @@ import { sanitizeString } from '@/lib/security';
 import {
   translateHindiToEnglish,
   analyzeEnglishMistakes,
+  getOralChallenges,
 } from '@/lib/translate-engine';
 
 export const dynamic = 'force-dynamic';
+
+export async function GET(request: NextRequest) {
+  try {
+    const challenges = getOralChallenges();
+    return NextResponse.json({
+      success: true,
+      challenges,
+    });
+  } catch (error) {
+    console.error('Error fetching oral challenges:', error);
+    return NextResponse.json(
+      { error: 'Failed to retrieve oral challenges' },
+      { status: 500 }
+    );
+  }
+}
 
 const translateCoachSchema = z.object({
   action: z.enum(['translate', 'verify']),
