@@ -19,6 +19,7 @@ import {
   Menu,
   X,
   Sparkles,
+  Languages,
 } from 'lucide-react';
 import { useAccessibility } from './ui/AccessibilityProvider';
 
@@ -72,6 +73,12 @@ export default function Navbar() {
       label: 'Scenarios',
       labelHindi: 'बातचीत',
       icon: MessageCircle,
+    },
+    {
+      href: '/translate-coach',
+      label: 'Translate & Fix',
+      labelHindi: 'अनुवाद & गलतियाँ',
+      icon: Languages,
     },
     {
       href: '/vocabulary',

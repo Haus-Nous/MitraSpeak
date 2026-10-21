@@ -1,21 +1,87 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Mic, Square, Sparkles } from 'lucide-react';
 import { useAccessibility } from './ui/AccessibilityProvider';
 
 interface WhatsAppVoiceButtonProps {
-  isRecording: boolean;
-  onToggleRecording: () => void;
+  isRecording?: boolean;
+  onToggleRecording?: () => void;
+  onSpeechRecognized?: (transcript: string) => void;
   disabled?: boolean;
+  label?: string;
 }
 
 export default function WhatsAppVoiceButton({
-  isRecording,
+  isRecording: externalIsRecording,
   onToggleRecording,
+  onSpeechRecognized,
   disabled = false,
+  label,
 }: WhatsAppVoiceButtonProps) {
   const { highContrast } = useAccessibility();
+  const [internalRecording, setInternalRecording] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+  const isRecording = externalIsRecording !== undefined ? externalIsRecording : internalRecording;
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && onSpeechRecognized) {
+      const SpeechRecognition =
+        (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'hi-IN'; // Accepts Hindi and Indian English
+
+        recognition.onresult = (event: any) => {
+          const transcript = event.results[0]?.[0]?.transcript;
+          if (transcript) {
+            onSpeechRecognized(transcript);
+          }
+          setInternalRecording(false);
+        };
+
+        recognition.onerror = () => {
+          setInternalRecording(false);
+        };
+
+        recognition.onend = () => {
+          setInternalRecording(false);
+        };
+
+        recognitionRef.current = recognition;
+      }
+    }
+  }, [onSpeechRecognized]);
+
+  const handleClick = () => {
+    if (disabled) return;
+
+    if (onToggleRecording) {
+      onToggleRecording();
+      return;
+    }
+
+    if (recognitionRef.current) {
+      if (internalRecording) {
+        recognitionRef.current.stop();
+        setInternalRecording(false);
+      } else {
+        try {
+          recognitionRef.current.start();
+          setInternalRecording(true);
+        } catch (e) {
+          console.warn('Speech recognition error:', e);
+          setInternalRecording(false);
+        }
+      }
+    } else {
+      // Fallback toggle for browsers without native Web Speech API
+      setInternalRecording(!internalRecording);
+    }
+  };
 
   return (
     <div className="flex flex-col items-center justify-center gap-3 py-2">
@@ -30,7 +96,7 @@ export default function WhatsAppVoiceButton({
 
         <button
           type="button"
-          onClick={onToggleRecording}
+          onClick={handleClick}
           disabled={disabled}
           aria-label={isRecording ? 'बोलना समाप्त करें (Stop speaking)' : 'बोलने के लिए दबाएं (Tap to speak)'}
           className={`relative z-10 w-20 h-20 sm:w-22 sm:h-22 rounded-full flex items-center justify-center transition-all duration-200 transform active:scale-95 shadow-xl focus:outline-none focus:ring-4 ${
@@ -58,11 +124,13 @@ export default function WhatsAppVoiceButton({
               <span className="text-rose-600 font-bold">आपकी आवाज़ सुनी जा रही है...</span>
             </>
           ) : (
-            <span>बोलने के लिए हरा बटन दबाएं</span>
+            <span>{label || 'बोलने के लिए हरा बटन दबाएं'}</span>
           )}
         </p>
         <p className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">
-          {isRecording ? 'बोलना पूरा होने पर दोबारा दबाएं (Tap again when finished)' : 'Tap the green mic button to speak in English or Hinglish'}
+          {isRecording
+            ? 'बोलना पूरा होने पर दोबारा दबाएं (Tap again when finished)'
+            : 'Tap the green mic button to speak in English or Hinglish'}
         </p>
       </div>
     </div>

@@ -89,7 +89,6 @@ export default function HomePage() {
           आरती दीदी हर वाक्य को प्यार से सुधारेंगी — कोई परीक्षा नहीं, कोई तनाव नहीं।
         </p>
 
-        {/* CTA Buttons */}
         <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
           <Link
             href="/scenarios"
@@ -105,15 +104,27 @@ export default function HomePage() {
           </Link>
 
           <Link
-            href="/vocabulary"
-            className={`px-8 py-4 rounded-2xl font-bold text-xl min-h-[58px] flex items-center gap-3 transition-all border-2 focus:outline-none focus:ring-4 ${
+            href="/translate-coach"
+            className={`px-8 py-4 rounded-2xl font-black text-xl min-h-[58px] flex items-center gap-3 transition-all border-2 focus:outline-none focus:ring-4 ${
               highContrast
-                ? 'bg-slate-900 border-white text-white hover:bg-slate-800'
-                : 'bg-white border-emerald-300 text-emerald-800 hover:bg-emerald-50 shadow-sm'
+                ? 'bg-slate-900 border-emerald-400 text-emerald-200 hover:bg-slate-800'
+                : 'bg-emerald-50 border-emerald-300 text-emerald-900 hover:bg-emerald-100/70 shadow-sm'
             }`}
           >
-            <BookMarked className="w-6 h-6 text-emerald-600" />
-            <span>मेरा शब्दकोश • My Vocabulary</span>
+            <Languages className="w-6 h-6 text-emerald-600" />
+            <span>अनुवाद & गलतियाँ • Translate & Fix</span>
+          </Link>
+
+          <Link
+            href="/vocabulary"
+            className={`px-6 py-4 rounded-2xl font-bold text-xl min-h-[58px] flex items-center gap-2 transition-all border-2 focus:outline-none focus:ring-4 ${
+              highContrast
+                ? 'bg-slate-900 border-white text-white hover:bg-slate-800'
+                : 'bg-white border-slate-200 text-slate-800 hover:bg-slate-50 shadow-sm'
+            }`}
+          >
+            <BookMarked className="w-6 h-6 text-slate-600" />
+            <span>शब्दकोश</span>
           </Link>
         </div>
 

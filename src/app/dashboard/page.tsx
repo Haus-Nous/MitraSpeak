@@ -16,6 +16,7 @@ import {
   HeartPulse,
   ShoppingBasket,
   Users,
+  Languages,
 } from 'lucide-react';
 import { useAccessibility } from '@/components/ui/AccessibilityProvider';
 
@@ -223,44 +224,70 @@ export default function DashboardPage() {
       </div>
 
       {/* Quick Launch Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
         <Link
           href="/scenarios"
-          className={`p-8 rounded-3xl border-2 transition-all hover:scale-[1.01] ${
+          className={`p-6 rounded-3xl border-2 transition-all hover:scale-[1.01] flex flex-col justify-between ${
             highContrast
               ? 'bg-slate-900 border-emerald-400 text-white hover:bg-slate-800'
               : 'bg-white border-emerald-100 shadow-sm hover:shadow-md'
           }`}
         >
-          <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center mb-5">
-            <MessageCircle className="w-7 h-7" />
+          <div>
+            <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center mb-4">
+              <MessageCircle className="w-6 h-6" />
+            </div>
+            <h3 className="text-xl font-black mb-1">Practice Speaking • बातचीत</h3>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4 leading-relaxed font-medium">
+              सब्जी मंडी, डॉक्टर क्लिनिक, रिश्तेदारों के संदेश, कैफे और नाती-पोतों से बातचीत।
+            </p>
           </div>
-          <h3 className="text-2xl font-black mb-2">Practice Speaking • बातचीत अभ्यास</h3>
-          <p className="text-base text-slate-600 dark:text-slate-300 mb-5 leading-relaxed font-medium">
-            सब्जी मंडी, डॉक्टर क्लिनिक, रिश्तेदारों के संदेश, कैफे और नाती-पोतों से बातचीत के 5 व्यावहारिक परिदृश्य।
-          </p>
-          <span className="text-base font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
-            Open All Scenarios • सभी विषय देखें <ArrowRight className="w-5 h-5" />
+          <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+            All Scenarios <ArrowRight className="w-4 h-4 ml-auto" />
+          </span>
+        </Link>
+
+        <Link
+          href="/translate-coach"
+          className={`p-6 rounded-3xl border-2 transition-all hover:scale-[1.01] flex flex-col justify-between ${
+            highContrast
+              ? 'bg-slate-900 border-teal-400 text-white hover:bg-slate-800'
+              : 'bg-emerald-50/70 border-emerald-200 shadow-sm hover:shadow-md'
+          }`}
+        >
+          <div>
+            <div className="w-12 h-12 rounded-2xl bg-teal-100 text-teal-800 flex items-center justify-center mb-4">
+              <Languages className="w-6 h-6" />
+            </div>
+            <h3 className="text-xl font-black mb-1">Translate & Fix • अनुवाद & गलतियाँ</h3>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4 leading-relaxed font-medium">
+              हिंदी में बोलें, सही अंग्रेजी सीखें, और अपनी गलतियों की पूरी जाँच पाएँ।
+            </p>
+          </div>
+          <span className="text-sm font-bold text-teal-700 dark:text-teal-300 flex items-center gap-1.5 pt-2 border-t border-slate-200 dark:border-slate-700">
+            Launch Voice Coach <ArrowRight className="w-4 h-4 ml-auto" />
           </span>
         </Link>
 
         <Link
           href="/vocabulary"
-          className={`p-8 rounded-3xl border-2 transition-all hover:scale-[1.01] ${
+          className={`p-6 rounded-3xl border-2 transition-all hover:scale-[1.01] flex flex-col justify-between ${
             highContrast
               ? 'bg-slate-900 border-emerald-400 text-white hover:bg-slate-800'
               : 'bg-white border-emerald-100 shadow-sm hover:shadow-md'
           }`}
         >
-          <div className="w-14 h-14 rounded-2xl bg-teal-100 text-teal-800 flex items-center justify-center mb-5">
-            <BookMarked className="w-7 h-7" />
+          <div>
+            <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center justify-center mb-4">
+              <BookMarked className="w-6 h-6" />
+            </div>
+            <h3 className="text-xl font-black mb-1">Word Bank • मेरा शब्दकोश</h3>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4 leading-relaxed font-medium">
+              सहेजे गए शब्दों और वाक्यों का सही उच्चारण धीमी गति से सुनें और दोहराएँ।
+            </p>
           </div>
-          <h3 className="text-2xl font-black mb-2">Review Saved Words • मेरा शब्दकोश</h3>
-          <p className="text-base text-slate-600 dark:text-slate-300 mb-5 leading-relaxed font-medium">
-            सहेजे गए शब्दों और वाक्यों का सही उच्चारण धीमी गति से सुनें और दोहराएँ।
-          </p>
-          <span className="text-base font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
-            Open Vocabulary • शब्दकोश खोलें <ArrowRight className="w-5 h-5" />
+          <span className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+            Open Vocabulary <ArrowRight className="w-4 h-4 ml-auto" />
           </span>
         </Link>
       </div>

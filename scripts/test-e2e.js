@@ -196,6 +196,62 @@ async function runTests() {
     assert(authAdminRes.status === 200, 'Admin gets 200 OK on /api/admin/analytics');
     assert(authAdminRes.body.analytics.totalUsers >= 2, 'Admin telemetry reports at least 2 users');
 
+    // Test Suite 9: Hindi to English Translation & Mistake Checker
+    console.log('\n[Test Suite 9: Hindi to English Translation & Mistake Checker]');
+    // 9.1 Translate Hindi sentence
+    const transRes = await makeRequest('/api/translate-coach', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: {
+        action: 'translate',
+        hindiText: 'मुझे कल सुबह जल्दी उठना है क्योंकि बच्चों का स्कूल है',
+      },
+    });
+    assert(transRes.status === 200, 'POST /api/translate-coach (translate) returns 200 OK');
+    assert(transRes.body.success === true, 'Translation response has success: true');
+    assert(transRes.body.translation.idealEnglish.includes('wake up early'), 'Translation contains ideal English sentence');
+    assert(transRes.body.translation.phoneticHindi.length > 0, 'Phonetic pronunciation guide in Hindi provided');
+    assert(Array.isArray(transRes.body.translation.vocabulary) && transRes.body.translation.vocabulary.length > 0, 'Vocabulary keywords provided');
+
+    // 9.2 Verify user attempt with intentional mistakes
+    const verifyMistakeRes = await makeRequest('/api/translate-coach', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${learnerToken}`,
+      },
+      body: {
+        action: 'verify',
+        hindiText: 'मुझे कल सुबह जल्दी उठना है क्योंकि बच्चों का स्कूल है',
+        targetEnglish: transRes.body.translation.idealEnglish,
+        userAttempt: 'I want wake early morning because children school',
+      },
+    });
+    assert(verifyMistakeRes.status === 200, 'POST /api/translate-coach (verify) returns 200 OK');
+    assert(verifyMistakeRes.body.success === true, 'Verification returns success: true');
+    assert(verifyMistakeRes.body.verification.score >= 35 && verifyMistakeRes.body.verification.score <= 100, 'Computed fluency score for user attempt');
+    assert(Array.isArray(verifyMistakeRes.body.verification.mistakes) && verifyMistakeRes.body.verification.mistakes.length > 0, 'Diagnosed specific grammatical/omission mistakes');
+    assert(verifyMistakeRes.body.verification.encouragingMessageHindi.length > 0, 'Provided encouraging mentor advice in Hindi');
+    assert(verifyMistakeRes.body.pointsAwarded === 20, 'Awarded 20 fluency points for practice');
+
+    // 9.3 Verify perfect attempt
+    const verifyPerfectRes = await makeRequest('/api/translate-coach', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${learnerToken}`,
+      },
+      body: {
+        action: 'verify',
+        hindiText: 'मुझे कल सुबह जल्दी उठना है क्योंकि बच्चों का स्कूल है',
+        targetEnglish: transRes.body.translation.idealEnglish,
+        userAttempt: transRes.body.translation.idealEnglish,
+      },
+    });
+    assert(verifyPerfectRes.status === 200, 'Verify perfect sentence returns 200 OK');
+    assert(verifyPerfectRes.body.verification.score >= 95, 'Perfect sentence achieves high fluency score >= 95');
+    assert(verifyPerfectRes.body.verification.mistakes.length === 0, 'Zero mistakes flagged on perfect sentence');
+
     console.log(`\n===========================================`);
     console.log(`TOTAL TESTS: ${passed + failed} | PASSED: ${passed} | FAILED: ${failed}`);
     console.log(`===========================================\n`);
