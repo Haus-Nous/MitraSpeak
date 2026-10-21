@@ -116,6 +116,18 @@ export default function HomePage() {
           </Link>
 
           <Link
+            href="/learn"
+            className={`px-6 py-4 rounded-2xl font-bold text-xl min-h-[58px] flex items-center gap-2 transition-all border-2 focus:outline-none focus:ring-4 ${
+              highContrast
+                ? 'bg-slate-900 border-white text-white hover:bg-slate-800'
+                : 'bg-white border-emerald-200 text-slate-800 hover:bg-emerald-50 shadow-sm'
+            }`}
+          >
+            <Sparkles className="w-6 h-6 text-emerald-600" />
+            <span>मुहावरे & व्याकरण</span>
+          </Link>
+
+          <Link
             href="/vocabulary"
             className={`px-6 py-4 rounded-2xl font-bold text-xl min-h-[58px] flex items-center gap-2 transition-all border-2 focus:outline-none focus:ring-4 ${
               highContrast

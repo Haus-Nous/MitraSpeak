@@ -31,6 +31,7 @@ import WhatsAppVoiceButton from '@/components/WhatsAppVoiceButton';
 import SpeechPlayer from '@/components/SpeechPlayer';
 import { useAccessibility } from '@/components/ui/AccessibilityProvider';
 import { ORAL_CHALLENGES, OralChallenge } from '@/lib/translate-engine';
+import { REPEAT_DRILLS, evaluateRepeatAttempt } from '@/lib/learning-hub';
 
 interface VocabularyItem {
   word: string;
@@ -106,12 +107,18 @@ const SAMPLE_PROMPTS = [
 export default function TranslateCoachPage() {
   const { highContrast } = useAccessibility();
 
-  // Active Mode: 'challenge' (Aarti Didi Speaks Hindi & Asks user to convert) OR 'custom' (User's own sentence)
-  const [activeMode, setActiveMode] = useState<'challenge' | 'custom'>('challenge');
+  // Active Mode: 'challenge' (Aarti Didi Speaks Hindi & Asks user to convert) | 'repeat' (Listen & Repeat after Didi) | 'custom' (User's own sentence)
+  const [activeMode, setActiveMode] = useState<'challenge' | 'repeat' | 'custom'>('challenge');
 
   // Oral Challenge State
   const [challengeIdx, setChallengeIdx] = useState(0);
   const currentChallenge: OralChallenge = ORAL_CHALLENGES[challengeIdx] || ORAL_CHALLENGES[0];
+
+  // Listen & Repeat State
+  const [drillIdx, setDrillIdx] = useState(0);
+  const currentDrill = REPEAT_DRILLS[drillIdx] || REPEAT_DRILLS[0];
+  const [repeatResult, setRepeatResult] = useState<any | null>(null);
+  const [isEvaluatingRepeat, setIsEvaluatingRepeat] = useState(false);
 
   // Step state
   const [hindiInput, setHindiInput] = useState('');
@@ -139,6 +146,37 @@ export default function TranslateCoachPage() {
     setChallengeIdx(prevIdx);
     setEnglishAttempt('');
     setVerification(null);
+  };
+
+  // Evaluate Listen & Repeat
+  const handleEvaluateRepeat = async (spokenText?: string) => {
+    const text = (spokenText || englishAttempt).trim();
+    if (!text) return;
+
+    setIsEvaluatingRepeat(true);
+    try {
+      const res = await fetch('/api/learn', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'evaluate_repeat',
+          targetEnglish: currentDrill.targetEnglish,
+          userSpoken: text,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setRepeatResult(data.evaluation);
+      } else {
+        const local = evaluateRepeatAttempt(currentDrill.targetEnglish, text);
+        setRepeatResult(local);
+      }
+    } catch {
+      const local = evaluateRepeatAttempt(currentDrill.targetEnglish, text);
+      setRepeatResult(local);
+    } finally {
+      setIsEvaluatingRepeat(false);
+    }
   };
 
   // Step 1: Translate Hindi to English (Custom Mode)
@@ -337,6 +375,35 @@ export default function TranslateCoachPage() {
             <Languages className="w-5 h-5" />
             <span>✍️ अपना खुद का वाक्य पूछें (Ask Your Own)</span>
           </button>
+
+          <button
+            onClick={() => {
+              setActiveMode('repeat');
+              setRepeatResult(null);
+              setEnglishAttempt('');
+            }}
+            className={`px-5 py-2.5 rounded-2xl font-black text-base flex items-center gap-2 transition-all ${
+              activeMode === 'repeat'
+                ? highContrast
+                  ? 'bg-emerald-400 text-black shadow-md'
+                  : 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30'
+                : highContrast
+                ? 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                : 'bg-white/80 text-slate-700 hover:bg-white border border-emerald-200'
+            }`}
+          >
+            <RotateCcw className="w-5 h-5" />
+            <span>🔁 सुनो और दोहराओ (Listen & Repeat)</span>
+          </button>
+
+          <Link
+            href="/learn"
+            className="px-5 py-2.5 rounded-2xl font-black text-base flex items-center gap-2 transition-all bg-amber-100 hover:bg-amber-200 text-amber-900 dark:bg-amber-950 dark:text-amber-200 border border-amber-300 dark:border-amber-700"
+          >
+            <Sparkles className="w-5 h-5 text-amber-600" />
+            <span>मुहावरे & व्याकरण (Learn Hub)</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
       </div>
 
@@ -655,7 +722,227 @@ export default function TranslateCoachPage() {
       )}
 
       {/* ============================================================== */}
-      {/* MODE 2: CUSTOM SENTENCE TRANSLATE & PRACTICE                   */}
+      {/* MODE 2: LISTEN & REPEAT (COACH SPEAKS -> LEARNER REPEATS)      */}
+      {/* ============================================================== */}
+      {activeMode === 'repeat' && (
+        <div className="space-y-6">
+          <div
+            className={`p-6 sm:p-8 rounded-3xl border-2 space-y-6 transition-all ${
+              highContrast
+                ? 'bg-slate-950 border-emerald-400 text-white'
+                : 'bg-white border-emerald-200 shadow-md'
+            }`}
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                  अभ्यास {drillIdx + 1} / {REPEAT_DRILLS.length} • {currentDrill.categoryHindi}
+                </span>
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-0.5">
+                  पहले दीदी को सुनें, फिर खुद दोहराएं (Listen & Repeat)
+                </h2>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    const prev = (drillIdx - 1 + REPEAT_DRILLS.length) % REPEAT_DRILLS.length;
+                    setDrillIdx(prev);
+                    setEnglishAttempt('');
+                    setRepeatResult(null);
+                  }}
+                  className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-bold hover:bg-slate-50"
+                >
+                  पिछला
+                </button>
+                <button
+                  onClick={() => {
+                    const next = (drillIdx + 1) % REPEAT_DRILLS.length;
+                    setDrillIdx(next);
+                    setEnglishAttempt('');
+                    setRepeatResult(null);
+                  }}
+                  className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-bold hover:bg-slate-50"
+                >
+                  अगला
+                </button>
+              </div>
+            </div>
+
+            <div
+              className={`p-6 rounded-2xl border-2 space-y-4 ${
+                highContrast
+                  ? 'bg-black border-slate-700'
+                  : 'bg-emerald-50/70 border-emerald-200'
+              }`}
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <span className="text-xs font-bold uppercase tracking-wide text-emerald-800 dark:text-emerald-300">
+                    आरती दीदी का वाक्य (Listen to Coach):
+                  </span>
+                  <p className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white leading-snug">
+                    &ldquo;{currentDrill.targetEnglish}&rdquo;
+                  </p>
+                  <p className="text-base font-bold text-emerald-800 dark:text-emerald-400">
+                    🇮🇳 {currentDrill.hindiMeaning}
+                  </p>
+                  <p className="text-xs text-slate-500 font-mono">
+                    उच्चारण: {currentDrill.phoneticHindi}
+                  </p>
+                </div>
+
+                <SpeechPlayer
+                  text={currentDrill.targetEnglish}
+                  label="दीदी से सुनें (Listen)"
+                  lang="en-IN"
+                  femaleVoice={true}
+                  size="large"
+                  className="!px-5 !py-3 !text-base shrink-0 shadow-md"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <span className="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">
+                  2
+                </span>
+                <h3 className="text-lg font-black">
+                  अब आप माइक दबाकर इस वाक्य को दोहराएं (Repeat after Didi):
+                </h3>
+              </div>
+
+              <textarea
+                rows={2}
+                value={englishAttempt}
+                onChange={(e) => setEnglishAttempt(e.target.value)}
+                placeholder="यहाँ दोहराकर बोलें या लिखें... (उदा. Could you please speak a little more slowly?)"
+                className={`w-full p-4 rounded-2xl border-2 text-lg font-medium focus:outline-none focus:ring-4 transition-all ${
+                  highContrast
+                    ? 'bg-slate-950 border-white text-white focus:ring-emerald-400'
+                    : 'bg-slate-50 border-slate-200 focus:border-indigo-500 focus:ring-indigo-100'
+                }`}
+              />
+
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <WhatsAppVoiceButton
+                    onSpeechRecognized={(spoken) => {
+                      setEnglishAttempt(spoken);
+                      handleEvaluateRepeat(spoken);
+                    }}
+                    disabled={isEvaluatingRepeat}
+                  />
+                  <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                    माइक दबाकर दोहराएं (Tap to Repeat)
+                  </span>
+                </div>
+
+                <button
+                  onClick={() => handleEvaluateRepeat()}
+                  disabled={isEvaluatingRepeat || !englishAttempt.trim()}
+                  className={`w-full sm:w-auto px-8 py-3.5 rounded-2xl font-black text-lg min-h-[52px] flex items-center justify-center gap-2 transition-all ${
+                    isEvaluatingRepeat || !englishAttempt.trim()
+                      ? 'opacity-50 cursor-not-allowed bg-slate-300 text-slate-600'
+                      : highContrast
+                      ? 'bg-indigo-400 text-black hover:bg-indigo-300'
+                      : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-md shadow-indigo-600/20'
+                  }`}
+                >
+                  <CheckCircle className="w-5 h-5" />
+                  <span>{isEvaluatingRepeat ? 'परख रहे हैं...' : 'मेरा उच्चारण जाँचें (Check Repeat)'}</span>
+                </button>
+              </div>
+            </div>
+
+            {repeatResult && (
+              <div
+                className={`p-6 rounded-2xl border-2 space-y-4 animate-fadeIn ${
+                  repeatResult.isSuccess
+                    ? 'bg-emerald-50/80 border-emerald-300 text-slate-900 dark:bg-emerald-950/40 dark:border-emerald-700 dark:text-white'
+                    : 'bg-amber-50/80 border-amber-300 text-slate-900 dark:bg-amber-950/40 dark:border-amber-700 dark:text-white'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-black ${
+                        repeatResult.accuracy >= 85 ? 'bg-emerald-600' : 'bg-amber-600'
+                      }`}
+                    >
+                      {repeatResult.accuracy}%
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-black">
+                        Clarity Score: {repeatResult.accuracy}% Match
+                      </h4>
+                      <p className="text-sm font-semibold opacity-90">
+                        {repeatResult.feedbackHindi}
+                      </p>
+                    </div>
+                  </div>
+
+                  {repeatResult.isSuccess && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white dark:bg-black font-bold text-xs">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                      +15 Points
+                    </span>
+                  )}
+                </div>
+
+                <div className="space-y-1 pt-2">
+                  <span className="text-xs font-bold uppercase tracking-wider opacity-70">
+                    शब्द-दर-शब्द मिलान (Word Breakdown):
+                  </span>
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {repeatResult.wordStatus.map((w: any, idx: number) => (
+                      <span
+                        key={idx}
+                        className={`px-3 py-1 rounded-lg text-sm font-bold border ${
+                          w.matched
+                            ? 'bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-900 dark:text-emerald-100'
+                            : 'bg-rose-100 text-rose-900 border-rose-300 dark:bg-rose-900 dark:text-rose-100'
+                        }`}
+                      >
+                        {w.matched ? '✓' : '✗'} {w.word}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+                  <button
+                    onClick={() => {
+                      setRepeatResult(null);
+                      setEnglishAttempt('');
+                    }}
+                    className="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 font-bold text-sm"
+                  >
+                    दोबारा बोलें (Retry)
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      const next = (drillIdx + 1) % REPEAT_DRILLS.length;
+                      setDrillIdx(next);
+                      setEnglishAttempt('');
+                      setRepeatResult(null);
+                    }}
+                    className="px-5 py-2 rounded-xl bg-emerald-600 text-white font-black text-sm flex items-center gap-2 hover:bg-emerald-700"
+                  >
+                    <span>अगला वाक्य (Next Drill)</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* MODE 3: CUSTOM SENTENCE TRANSLATE & PRACTICE                   */}
       {/* ============================================================== */}
       {activeMode === 'custom' && (
         <div className="space-y-6">

@@ -261,6 +261,50 @@ async function runTests() {
     });
     assert(challengeVerifyRes.status === 200, 'Converting oral challenge attempt returns 200 OK');
     assert(challengeVerifyRes.body.verification.score >= 95, 'Accurate oral conversion receives high score');
+    // Test Suite 11: Conversation Learning Hub (Idioms, Grammar, Conversation, Repeat Drills)
+    console.log('\n[Test Suite 11: Learning Hub & Listen & Repeat Drills]');
+    const learnRes = await makeRequest('/api/learn');
+    assert(learnRes.status === 200, 'GET /api/learn returns 200 OK');
+    assert(learnRes.body.success === true, 'GET /api/learn returns success: true');
+    assert(Array.isArray(learnRes.body.idioms) && learnRes.body.idioms.length >= 10, 'Returns at least 10 idioms and phrases');
+    assert(Array.isArray(learnRes.body.grammar) && learnRes.body.grammar.length >= 6, 'Returns 6 practical grammar rules');
+    assert(Array.isArray(learnRes.body.templates) && learnRes.body.templates.length >= 5, 'Returns 5 conversation templates');
+    assert(Array.isArray(learnRes.body.drills) && learnRes.body.drills.length >= 8, 'Returns at least 8 listen & repeat drills');
+
+    // 11.1 Test Listen & Repeat evaluation
+    const repeatEvalRes = await makeRequest('/api/learn', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${learnerToken}`,
+      },
+      body: {
+        action: 'evaluate_repeat',
+        drillId: 'rep-slowly',
+        userAttempt: 'Could you please speak a little more slowly?',
+      },
+    });
+    assert(repeatEvalRes.status === 200, 'POST /api/learn evaluate_repeat returns 200 OK');
+    assert(repeatEvalRes.body.success === true, 'Repeat evaluation succeeds');
+    assert(repeatEvalRes.body.evaluation.accuracyPercentage === 100, 'Exact speech match gives 100% accuracy');
+    assert(repeatEvalRes.body.pointsAwarded === 15, 'Awards 15 fluency points for repeating drill');
+
+    // 11.2 Test Grammar Quiz submission
+    const quizSubRes = await makeRequest('/api/learn', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${learnerToken}`,
+      },
+      body: {
+        action: 'submit_quiz',
+        topicId: 'grm-is-am-are',
+        selectedOptionIndex: 0,
+      },
+    });
+    assert(quizSubRes.status === 200, 'POST /api/learn submit_quiz returns 200 OK');
+    assert(quizSubRes.body.isCorrect === true, 'Grammar quiz answer is validated');
+    assert(quizSubRes.body.pointsAwarded === 10, 'Awards 10 points for correct quiz answer');
 
     console.log(`\n===========================================`);
     console.log(`TOTAL TESTS: ${passed + failed} | PASSED: ${passed} | FAILED: ${failed}`);

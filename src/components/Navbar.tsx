@@ -81,6 +81,12 @@ export default function Navbar() {
       icon: Languages,
     },
     {
+      href: '/learn',
+      label: 'Learn Hub',
+      labelHindi: 'मुहावरे & व्याकरण',
+      icon: Sparkles,
+    },
+    {
       href: '/vocabulary',
       label: 'Vocabulary',
       labelHindi: 'शब्दकोश',
