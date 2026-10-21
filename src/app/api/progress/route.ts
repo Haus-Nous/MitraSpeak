@@ -7,84 +7,64 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     const authUser = extractAuthUser(request);
-    if (!authUser) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    let targetUserId = authUser?.userId;
+
+    if (!targetUserId) {
+      const defaultUser = await prisma.user.findFirst({
+        where: { email: 'shanti.devi@boloenglish.com' },
+      });
+      targetUserId = defaultUser?.id;
+    }
+
+    if (!targetUserId) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: authUser.userId },
+      where: { id: targetUserId },
       include: {
-        progress: {
+        sessions: {
           include: {
-            lesson: {
-              include: {
-                module: true,
-              },
-            },
+            scenario: true,
+            _count: { select: { messages: true } },
           },
         },
-        quizResults: {
-          select: { isCorrect: true, latencyMs: true },
-        },
+        vocabulary: true,
       },
     });
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: 'User record not found' }, { status: 404 });
     }
 
-    const totalLessons = await prisma.lesson.count();
-    const completedProgress = user.progress.filter(p => p.completed);
-    const completedLessonsCount = completedProgress.length;
+    const totalSessions = user.sessions.length;
+    const totalVocabCount = user.vocabulary.length;
+    const totalMessagesExchanged = user.sessions.reduce(
+      (acc, s) => acc + (s._count?.messages || 0),
+      0
+    );
 
-    // Accuracy
-    const totalQuizAttempts = user.quizResults.length;
-    const correctAttempts = user.quizResults.filter(q => q.isCorrect).length;
-    const accuracyRate = totalQuizAttempts > 0 ? Math.round((correctAttempts / totalQuizAttempts) * 100) : 92;
-
-    // Modules breakdown
-    const englishCompleted = completedProgress.length;
-
-    // Next recommended lesson
-    const completedLessonIds = completedProgress.map(p => p.lessonId);
-    const nextLesson = await prisma.lesson.findFirst({
-      where: {
-        id: { notIn: completedLessonIds },
-      },
-      orderBy: [
-        { module: { orderIndex: 'asc' } },
-        { orderIndex: 'asc' },
-      ],
-      include: {
-        module: {
-          select: { id: true, title: true, category: true, icon: true },
-        },
-      },
-    });
-
-    // Level calculation (1 level per 250 points)
-    const level = Math.max(1, Math.floor(user.totalPoints / 250) + 1);
-    const nextLevelPoints = level * 250;
-    const currentLevelProgress = user.totalPoints % 250;
+    // Calculate level (1 level per 200 points)
+    const level = Math.max(1, Math.floor(user.totalPoints / 200) + 1);
+    const nextLevelPoints = level * 200;
+    const currentLevelProgress = user.totalPoints % 200;
 
     return NextResponse.json({
       success: true,
       stats: {
+        userName: user.name,
         streakCount: user.streakCount,
         totalPoints: user.totalPoints,
         level,
         nextLevelPoints,
         currentLevelProgress,
-        completedLessonsCount,
-        totalLessons,
-        overallCompletionRate: totalLessons > 0 ? Math.round((completedLessonsCount / totalLessons) * 100) : 0,
-        accuracyRate,
-        englishCompleted,
+        totalSessions,
+        totalVocabCount,
+        totalMessagesExchanged,
         dailyGoalMinutes: 15,
-        todayMinutesSpent: Math.min(15, completedLessonsCount * 5 + 3),
+        todayMinutesSpent: Math.min(15, totalSessions * 5 + 3),
       },
-      recommendedLesson: nextLesson,
-      recentActivity: user.progress.slice(0, 5),
+      recentSessions: user.sessions.slice(0, 5),
     });
   } catch (error) {
     console.error('Error fetching progress:', error);

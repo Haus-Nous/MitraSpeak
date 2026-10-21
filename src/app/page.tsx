@@ -3,208 +3,280 @@
 import React from 'react';
 import Link from 'next/link';
 import {
-  BookOpen,
+  MessageCircle,
   Volume2,
   Mic,
   ArrowRight,
   Flame,
   CheckCircle2,
   Sparkles,
-  Award,
+  BookMarked,
   HeartPulse,
-  ShoppingBag,
+  ShoppingBasket,
+  Coffee,
   Users,
+  Send,
+  ShieldCheck,
+  Languages,
 } from 'lucide-react';
-import Flashcard from '@/components/Flashcard';
+import SpeechPlayer from '@/components/SpeechPlayer';
 import { useAccessibility } from '@/components/ui/AccessibilityProvider';
 
 export default function HomePage() {
   const { highContrast } = useAccessibility();
 
+  const scenarios = [
+    {
+      title: 'Buying Vegetables & Groceries',
+      titleHindi: 'सब्जी मंडी और खरीदारी',
+      slug: 'sabzi-mandi',
+      icon: ShoppingBasket,
+      tag: 'दैनिक जीवन',
+      desc: 'Ask for fresh tomatoes, check prices per kilo, and get extra coriander without hesitation.',
+    },
+    {
+      title: 'Visiting the Doctor at Clinic',
+      titleHindi: 'डॉक्टर क्लिनिक में बातचीत',
+      slug: 'clinic-visit',
+      icon: HeartPulse,
+      tag: 'स्वास्थ्य',
+      desc: 'Explain headache, fever, blood pressure, and dosage instructions in clear simple English.',
+    },
+    {
+      title: 'Polite WhatsApp to Relatives',
+      titleHindi: 'रिश्तेदारों को व्हाट्सएप संदेश',
+      slug: 'whatsapp-relatives',
+      icon: Send,
+      tag: 'सामाजिक',
+      desc: 'Send warm wedding, birthday, and festival wishes on family WhatsApp groups confidently.',
+    },
+    {
+      title: 'Cafe & Airport Gate Directions',
+      titleHindi: 'कैफे और एयरपोर्ट सहायता',
+      slug: 'cafe-airport',
+      icon: Coffee,
+      tag: 'यात्रा और कैफे',
+      desc: 'Order ginger tea or coffee with less sugar, and ask for boarding gates at the airport.',
+    },
+    {
+      title: 'Chatting with Grandchildren',
+      titleHindi: 'बच्चों और नाती-पोतों से बात',
+      slug: 'family-chat',
+      icon: Users,
+      tag: 'परिवार',
+      desc: 'Bond with English-speaking kids about school, homework, drawing, and bedtime stories.',
+    },
+  ];
+
   return (
-    <div className="space-y-16 py-4">
+    <div className="space-y-16 py-4 max-w-6xl mx-auto px-4 sm:px-6">
       {/* Hero Section */}
-      <section className="text-center space-y-6 max-w-4xl mx-auto pt-6 pb-4">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold border border-primary-200 bg-primary-50 text-primary-800 dark:bg-primary-950/60 dark:border-primary-800 dark:text-primary-300">
-          <Sparkles className="w-4 h-4 text-primary-600" />
-          <span>Intuitive English Learning for Adults, Seniors & Everyday Fluency</span>
+      <section className="text-center space-y-6 pt-6 pb-2">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-base font-bold border border-emerald-300 bg-emerald-50 text-emerald-900 dark:bg-emerald-950/60 dark:border-emerald-700 dark:text-emerald-300">
+          <Sparkles className="w-5 h-5 text-emerald-600" />
+          <span>भारतीय परिवारों और माताओं के लिए • Indian Family Conversational English</span>
         </div>
 
         <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-tight">
-          Speak English with Confidence. <br />
-          <span className={highContrast ? 'text-amber-400' : 'text-primary-600'}>
-            At Your Pace, In Every Conversation.
+          Speak English Without Fear. <br />
+          <span className={highContrast ? 'text-amber-400' : 'text-emerald-600 dark:text-emerald-400'}>
+            बिना किसी झिझक के अंग्रेजी बोलिए।
           </span>
         </h1>
 
-        <p className="text-xl sm:text-2xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed font-medium">
-          An enterprise-grade language learning platform combining gentle, spaced-repetition vocabulary, real-time voice roleplays, and high-contrast senior accessibility.
+        <p className="text-xl sm:text-2xl text-slate-700 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed font-medium">
+          सब्जी मंडी, डॉक्टर क्लिनिक, रिश्तेदारों के व्हाट्सएप ग्रुप और बच्चों से अंग्रेजी में खुलकर बात करें।
+          आरती दीदी हर वाक्य को प्यार से सुधारेंगी — कोई परीक्षा नहीं, कोई तनाव नहीं।
         </p>
 
+        {/* CTA Buttons */}
         <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
           <Link
-            href="/dashboard"
-            className={`px-8 py-4 rounded-2xl font-black text-lg min-h-[56px] flex items-center gap-2.5 transition-all focus:outline-none focus:ring-4 ${
+            href="/scenarios"
+            className={`px-8 py-4 rounded-2xl font-black text-xl min-h-[58px] flex items-center gap-3 transition-all focus:outline-none focus:ring-4 ${
               highContrast
-                ? 'bg-amber-400 text-black hover:bg-amber-300 border-2 border-white'
-                : 'bg-primary-600 text-white hover:bg-primary-700 shadow-lg shadow-primary-500/25'
+                ? 'bg-emerald-400 text-black hover:bg-emerald-300 border-2 border-white'
+                : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg shadow-emerald-600/30'
             }`}
           >
-            <span>Start Learning Now</span>
+            <MessageCircle className="w-6 h-6" />
+            <span>बातचीत शुरू करें • Start Speaking</span>
             <ArrowRight className="w-5 h-5" />
           </Link>
 
           <Link
-            href="/roleplay"
-            className={`px-8 py-4 rounded-2xl font-bold text-lg min-h-[56px] flex items-center gap-2.5 transition-all border-2 focus:outline-none focus:ring-4 ${
+            href="/vocabulary"
+            className={`px-8 py-4 rounded-2xl font-bold text-xl min-h-[58px] flex items-center gap-3 transition-all border-2 focus:outline-none focus:ring-4 ${
               highContrast
-                ? 'bg-slate-900 border-amber-400 text-amber-200 hover:bg-slate-800'
-                : 'bg-white border-slate-200 text-slate-800 hover:bg-slate-50 shadow-sm'
+                ? 'bg-slate-900 border-white text-white hover:bg-slate-800'
+                : 'bg-white border-emerald-300 text-emerald-800 hover:bg-emerald-50 shadow-sm'
             }`}
           >
-            <Mic className="w-5 h-5 text-indigo-600" />
-            <span>Voice Roleplay Simulator</span>
+            <BookMarked className="w-6 h-6 text-emerald-600" />
+            <span>मेरा शब्दकोश • My Vocabulary</span>
           </Link>
         </div>
 
-        {/* Feature Highlights Banner */}
-        <div className="pt-8 grid grid-cols-2 sm:grid-cols-4 gap-4 text-left">
-          <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60">
-            <Volume2 className="w-6 h-6 text-primary-500 mb-2" />
-            <h2 className="font-bold text-base">Gentle Audio</h2>
-            <p className="text-xs text-slate-500">Slowed enunciation with crystal clear American English pronunciation</p>
-          </div>
-          <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60">
-            <Mic className="w-6 h-6 text-indigo-500 mb-2" />
-            <h2 className="font-bold text-base">Voice Simulator</h2>
-            <p className="text-xs text-slate-500">Real-time Web Audio API waveform feedback for vocal practice</p>
-          </div>
-          <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60">
-            <BookOpen className="w-6 h-6 text-emerald-500 mb-2" />
-            <h2 className="font-bold text-base">Practical Modules</h2>
-            <p className="text-xs text-slate-500">Real situations: grocery stores, doctor appointments, dining out</p>
-          </div>
-          <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60">
-            <Award className="w-6 h-6 text-amber-500 mb-2" />
-            <h2 className="font-bold text-base">Senior Friendly</h2>
-            <p className="text-xs text-slate-500">WCAG 2.2 AA compliant with font scaling and 48px touch targets</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Interactive Try-it Flashcard Section */}
-      <section className="py-8 bg-slate-100/60 dark:bg-slate-900/40 rounded-3xl p-6 sm:p-12 border border-slate-200/60 dark:border-slate-800">
-        <div className="text-center max-w-xl mx-auto mb-6">
-          <span className="text-xs font-bold uppercase tracking-wider text-primary-600 dark:text-primary-400">
-            Try It Directly Below
-          </span>
-          <h2 className="text-3xl font-bold mt-1">Interactive Spaced Repetition Card</h2>
-          <p className="text-slate-600 dark:text-slate-400 text-sm mt-2">
-            Tap the card to reveal phonetic pronunciation, slow audio enunciation, and natural dialogue usage.
-          </p>
-        </div>
-
-        <Flashcard
-          word="Pleased to meet you"
-          phonetic="/pliːzd tuː miːt juː/"
-          definition="A courteous and respectful way to introduce yourself to a new acquaintance, neighbor, or colleague."
-          example='"Good morning! My name is Arthur. Pleased to meet you."'
-        />
-      </section>
-
-      {/* Two Pillars Showcase */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Pillar 1: Everyday English */}
+        {/* Aarti Didi Welcome Card */}
         <div
-          className={`p-8 rounded-3xl border-2 flex flex-col justify-between ${
-            highContrast ? 'bg-slate-900 border-amber-400' : 'bg-white border-slate-200 shadow-sm'
+          className={`mt-10 p-6 sm:p-8 rounded-3xl border-2 text-left max-w-3xl mx-auto flex flex-col sm:flex-row items-center gap-6 ${
+            highContrast
+              ? 'bg-slate-950 border-emerald-400 text-white'
+              : 'bg-gradient-to-r from-emerald-50/80 via-white to-emerald-50/50 border-emerald-200 text-slate-900 shadow-md'
           }`}
         >
-          <div>
-            <div className="w-12 h-12 rounded-2xl bg-primary-100 dark:bg-primary-900/60 text-primary-600 dark:text-primary-300 flex items-center justify-center mb-6">
-              <BookOpen className="w-6 h-6" />
+          <div className="w-20 h-20 rounded-full bg-emerald-600 text-white flex items-center justify-center font-black text-3xl shadow-inner shrink-0">
+            दीदी
+          </div>
+
+          <div className="space-y-2 flex-1">
+            <div className="flex items-center justify-between">
+              <span className="font-black text-xl text-emerald-800 dark:text-emerald-400">
+                Aarti Didi • आरती दीदी (AI Mentor)
+              </span>
+              <SpeechPlayer
+                text="Namaste! Do not hesitate to make mistakes. We will practice speaking simple English together, step by step."
+                label="Listen to Didi"
+                className="py-1.5 px-3 text-xs"
+              />
             </div>
-            <h3 className="text-2xl font-black mb-3">Everyday Practical Conversations</h3>
-            <p className="text-slate-600 dark:text-slate-300 leading-relaxed mb-6 font-medium">
-              Carefully paced bite-sized lessons designed without clutter or distracting gamification. Master courtesies, grocery shopping, asking directions, and speaking with healthcare providers with utter clarity.
+            <p className="text-base sm:text-lg font-medium text-slate-700 dark:text-slate-300">
+              &ldquo;नमस्ते! गलती करने से बिल्कुल मत डरिए। आप हिंग्लिश में भी बोल सकते हैं। मैं आपको सबसे सहज और स्वाभाविक तरीका बताऊँगी।&rdquo;
             </p>
-            <ul className="space-y-3 mb-6 text-sm">
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>Large high-contrast touch buttons (&gt;48px touch targets)</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>Adjustable slowed audio speech playback (0.85x)</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>Sentence builder puzzles and instant supportive feedback</span>
-              </li>
-            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* 5 Real-Life Scenarios Section */}
+      <section className="space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <span className="text-sm font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+              5 Practical Situations • 5 व्यावहारिक परिस्थितियाँ
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-black mt-1">Daily Life Speaking Practice</h2>
+            <p className="text-lg text-slate-600 dark:text-slate-300 font-medium">
+              अपनी पसंद का कोई भी विषय चुनें और सीधे आवाज से बात करना शुरू करें:
+            </p>
           </div>
 
           <Link
-            href="/lessons"
-            className="inline-flex items-center gap-2 font-bold text-primary-600 dark:text-primary-400 hover:underline text-lg"
+            href="/scenarios"
+            className="inline-flex items-center gap-2 font-bold text-emerald-700 dark:text-emerald-400 hover:underline text-lg whitespace-nowrap"
           >
-            <span>Explore All English Modules</span>
-            <ArrowRight className="w-4 h-4" />
+            <span>View All 5 Scenarios</span>
+            <ArrowRight className="w-5 h-5" />
           </Link>
         </div>
 
-        {/* Pillar 2: Voice & Pronunciation Mastery */}
-        <div
-          className={`p-8 rounded-3xl border-2 flex flex-col justify-between ${
-            highContrast ? 'bg-slate-900 border-indigo-400' : 'bg-white border-slate-200 shadow-sm'
-          }`}
-        >
-          <div>
-            <div className="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-300 flex items-center justify-center mb-6">
-              <Mic className="w-6 h-6" />
-            </div>
-            <h3 className="text-2xl font-black mb-3">Voice Simulation & Speech Feedback</h3>
-            <p className="text-slate-600 dark:text-slate-300 leading-relaxed mb-6 font-medium">
-              Overcome speaking anxiety in safe, private simulations. Real-time Web Audio API waveforms capture your voice while AI models evaluate your grammar, politeness, and vocabulary naturalness.
-            </p>
-            <ul className="space-y-3 mb-6 text-sm">
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-indigo-500 shrink-0" />
-                <span>Realistic roleplay scenarios (Store, Clinic, Neighborhood)</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-indigo-500 shrink-0" />
-                <span>Interactive HTML5 Canvas frequency waveform visualizer</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-indigo-500 shrink-0" />
-                <span>Instant affirmative coaching tips and ideal response suggestions</span>
-              </li>
-            </ul>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {scenarios.map((sc, i) => {
+            const Icon = sc.icon;
+            return (
+              <Link
+                key={sc.slug}
+                href={`/scenarios/${sc.slug}`}
+                className={`p-6 rounded-3xl border-2 flex flex-col justify-between transition-all duration-200 hover:shadow-lg hover:-translate-y-1 ${
+                  highContrast
+                    ? 'bg-black border-slate-700 text-white hover:border-emerald-400'
+                    : 'bg-white border-emerald-100 hover:border-emerald-300 shadow-sm'
+                }`}
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div
+                      className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
+                        highContrast
+                          ? 'bg-emerald-400 text-black'
+                          : 'bg-emerald-100 text-emerald-800'
+                      }`}
+                    >
+                      <Icon className="w-6 h-6" />
+                    </div>
+                    <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                      {sc.tag}
+                    </span>
+                  </div>
 
-          <Link
-            href="/roleplay"
-            className="inline-flex items-center gap-2 font-bold text-indigo-600 dark:text-indigo-400 hover:underline text-lg"
-          >
-            <span>Launch Roleplay Simulator</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+                  <div>
+                    <h3 className="text-xl font-black leading-snug">{sc.title}</h3>
+                    <p className="text-base font-bold text-emerald-700 dark:text-emerald-400 mt-0.5">
+                      {sc.titleHindi}
+                    </p>
+                  </div>
+
+                  <p className="text-sm text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
+                    {sc.desc}
+                  </p>
+                </div>
+
+                <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-emerald-600 dark:text-emerald-400 font-bold text-sm">
+                  <span>Start Practice • बोलें</span>
+                  <ArrowRight className="w-4 h-4" />
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
-      {/* Demo Credentials Section for Instant Testing */}
-      <section className="border border-slate-200 dark:border-slate-800 rounded-3xl p-6 bg-slate-50 dark:bg-slate-900 flex flex-col sm:flex-row items-center justify-between gap-6">
-        <div>
-          <h4 className="text-lg font-bold">Quick Test Logins Available</h4>
-          <p className="text-sm text-slate-500">
-            Sign in as <strong>Learner</strong> (<code className="font-mono text-xs">learner@mitraspeak.com</code>) or <strong>Admin</strong> (<code className="font-mono text-xs">admin@mitraspeak.com</code>).
+      {/* Feature Highlights Grid */}
+      <section className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div
+          className={`p-6 rounded-3xl border-2 ${
+            highContrast ? 'bg-slate-900 border-white text-white' : 'bg-white border-slate-200 shadow-sm'
+          }`}
+        >
+          <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
+            <Mic className="w-6 h-6" />
+          </div>
+          <h3 className="text-xl font-black mb-2">WhatsApp Voice Note Interface</h3>
+          <p className="text-base text-slate-600 dark:text-slate-300 font-medium">
+            बड़ा हरा माइक बटन दबाकर बोलें। रियल-टाइम ऑडियो वेवफ़ॉर्म से अपनी आवाज देखें।
           </p>
         </div>
-        <div className="flex gap-3">
+
+        <div
+          className={`p-6 rounded-3xl border-2 ${
+            highContrast ? 'bg-slate-900 border-white text-white' : 'bg-white border-slate-200 shadow-sm'
+          }`}
+        >
+          <div className="w-12 h-12 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center mb-4">
+            <Languages className="w-6 h-6" />
+          </div>
+          <h3 className="text-xl font-black mb-2">Hinglish Code-Switching</h3>
+          <p className="text-base text-slate-600 dark:text-slate-300 font-medium">
+            &ldquo;Bhaiya tamatar fresh hai?&rdquo; जैसे वाक्य भी समझता है और अंग्रेजी में बोलना सिखाता है।
+          </p>
+        </div>
+
+        <div
+          className={`p-6 rounded-3xl border-2 ${
+            highContrast ? 'bg-slate-900 border-white text-white' : 'bg-white border-slate-200 shadow-sm'
+          }`}
+        >
+          <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mb-4">
+            <ShieldCheck className="w-6 h-6" />
+          </div>
+          <h3 className="text-xl font-black mb-2">Senior & Adult Friendly</h3>
+          <p className="text-base text-slate-600 dark:text-slate-300 font-medium">
+            18px+ बड़े अक्षर, हाई-कंट्रास्ट मोड, 0.75x धीमी गति का ऑडियो और सहज टच बटन।
+          </p>
+        </div>
+      </section>
+
+      {/* Demo Credentials Section */}
+      <section className="border-2 border-emerald-200 dark:border-emerald-800 rounded-3xl p-6 sm:p-8 bg-emerald-50/50 dark:bg-emerald-950/20 flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="space-y-1">
+          <h4 className="text-xl font-black">Demo Family Learner Account</h4>
+          <p className="text-base text-slate-600 dark:text-slate-300 font-medium">
+            Sign in as <strong>Shanti Devi</strong> (<code className="font-mono text-sm bg-white dark:bg-black px-2 py-0.5 rounded border">shanti.devi@boloenglish.com</code>) with password <code className="font-mono text-sm bg-white dark:bg-black px-2 py-0.5 rounded border">BoloPass123!</code>
+          </p>
+        </div>
+        <div className="flex gap-3 shrink-0">
           <Link
             href="/login"
-            className="px-5 py-2.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-900 font-bold text-sm min-h-[44px] flex items-center"
+            className="px-6 py-3 rounded-2xl bg-emerald-600 text-white hover:bg-emerald-700 font-black text-base min-h-[48px] flex items-center shadow-md"
           >
             Sign In with 1-Click
           </Link>

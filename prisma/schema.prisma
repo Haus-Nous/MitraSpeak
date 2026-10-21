@@ -8,109 +8,93 @@ datasource db {
 }
 
 model User {
-  id                       String         @id @default(uuid())
-  email                    String         @unique
+  id                       String                @id @default(uuid())
+  email                    String                @unique
   passwordHash             String
   name                     String
-  role                     String         @default("LEARNER") // LEARNER, ADMIN
-  accessibilityPreferences String         @default("{\"fontSize\":\"normal\",\"highContrast\":false,\"soundSpeed\":\"1.0\"}")
-  streakCount              Int            @default(0)
-  totalPoints              Int            @default(0)
+  role                     String                @default("LEARNER") // LEARNER, ADMIN
+  nativeLanguage           String                @default("hi") // Hindi default
+  learningGoal             String                @default("Talk with family & shop confidently")
+  accessibilityPreferences String                @default("{\"fontSize\":\"large\",\"highContrast\":false,\"soundSpeed\":\"0.85\"}")
+  streakCount              Int                   @default(1)
+  totalPoints              Int                   @default(100)
   lastActiveDate           DateTime?
-  createdAt                DateTime       @default(now())
-  updatedAt                DateTime       @updatedAt
+  createdAt                DateTime              @default(now())
+  updatedAt                DateTime              @updatedAt
 
-  progress                 UserProgress[]
-  quizResults              QuizResult[]
+  sessions                 ConversationSession[]
+  vocabulary               UserVocabulary[]
   auditLogs                AuditLog[]
 }
 
-model Module {
-  id          String   @id @default(uuid())
-  title       String
-  slug        String   @unique
-  description String
-  category    String   // ENGLISH_CORE, FINTECH_LITERACY
-  level       String   @default("BEGINNER") // BEGINNER, INTERMEDIATE, ADVANCED
-  orderIndex  Int      @default(0)
-  icon        String   @default("BookOpen")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model Scenario {
+  id                  String                @id @default(uuid())
+  title               String
+  titleHindi          String
+  slug                String                @unique
+  category            String                // DAILY_LIFE, HEALTH, FAMILY, SOCIAL
+  description         String
+  descriptionHindi    String
+  icon                String                @default("MessageCircle")
+  characterName       String                @default("Aarti Didi")
+  characterNameHindi  String                @default("आरती दीदी")
+  promptContext       String
+  starterAudioText    String
+  starterAudioHindi   String
+  orderIndex          Int                   @default(0)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
 
-  lessons     Lesson[]
+  sessions            ConversationSession[]
 }
 
-model Lesson {
-  id              String         @id @default(uuid())
-  moduleId        String
-  title           String
-  description     String
-  orderIndex      Int            @default(0)
-  durationMinutes Int            @default(10)
-  pointsReward    Int            @default(50)
-  contentJson     String         // Structured JSON with vocabulary, scenario notes, pronunciation guides
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+model ConversationSession {
+  id          String     @id @default(uuid())
+  userId      String
+  scenarioId  String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
-  module          Module         @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  exercises       Exercise[]
-  progress        UserProgress[]
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scenario    Scenario   @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  messages    Message[]
 }
 
-model Exercise {
-  id              String       @id @default(uuid())
-  lessonId        String
-  type            String       // FLASHCARD, FILL_BLANK, MATCHING, SENTENCE_BUILD, ROLEPLAY
-  prompt          String
-  optionsJson     String?      // Options for matching/choice (JSON array or object)
-  correctResponse String       // Expected answer or evaluation pattern
-  explanation     String?      // Supportive explanation for learning
-  orderIndex      Int          @default(0)
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
+model Message {
+  id                 String              @id @default(uuid())
+  sessionId          String
+  sender             String              // USER, AI
+  text               String
+  hindiTranslation   String?             // Tap-to-translate text in Hindi
+  correctedSentence  String?             // Non-interruptive gentle grammar polish
+  explanationHindi   String?             // Friendly explanation in Hindi
+  clarityScore       Int?                // 0 - 100
+  createdAt          DateTime            @default(now())
 
-  lesson          Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  quizResults     QuizResult[]
+  session            ConversationSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 }
 
-model UserProgress {
-  id            String    @id @default(uuid())
-  userId        String
-  lessonId      String
-  completed     Boolean   @default(false)
-  score         Int       @default(0)
-  attempts      Int       @default(0)
-  lastAttemptAt DateTime  @default(now())
-  completedAt   DateTime?
+model UserVocabulary {
+  id              String   @id @default(uuid())
+  userId          String
+  word            String
+  hindiMeaning    String
+  phonetic        String?
+  exampleSentence String?
+  category        String   @default("Everyday")
+  createdAt       DateTime @default(now())
 
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lesson        Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, lessonId])
-}
-
-model QuizResult {
-  id           String   @id @default(uuid())
-  userId       String
-  exerciseId   String
-  userResponse String
-  isCorrect    Boolean
-  feedback     String?
-  latencyMs    Int?
-  timestamp    DateTime @default(now())
-
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  exercise     Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model AuditLog {
   id        String   @id @default(uuid())
   userId    String?
-  action    String   // USER_LOGIN, LESSON_COMPLETED, ADMIN_CONTENT_UPDATE, SECURITY_ALERT, etc.
-  resource  String   // modules, auth, roleplay, admin
+  action    String
+  resource  String
   ipAddress String?
   userAgent String?
-  details   String?  // JSON context
+  details   String?
   timestamp DateTime @default(now())
 
   user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)

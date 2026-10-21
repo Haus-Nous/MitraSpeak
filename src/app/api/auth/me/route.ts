@@ -18,6 +18,8 @@ export async function GET(request: NextRequest) {
         email: true,
         name: true,
         role: true,
+        nativeLanguage: true,
+        learningGoal: true,
         streakCount: true,
         totalPoints: true,
         accessibilityPreferences: true,

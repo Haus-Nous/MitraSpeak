@@ -13,42 +13,38 @@ export async function GET(request: NextRequest) {
 
     const totalUsers = await prisma.user.count();
     const totalLearners = await prisma.user.count({ where: { role: 'LEARNER' } });
-    const totalModules = await prisma.module.count();
-    const totalLessons = await prisma.lesson.count();
-    const totalExercises = await prisma.exercise.count();
-    const totalQuizAttempts = await prisma.quizResult.count();
-    const successfulAttempts = await prisma.quizResult.count({ where: { isCorrect: true } });
+    const totalScenarios = await prisma.scenario.count();
+    const totalSessions = await prisma.conversationSession.count();
+    const totalMessages = await prisma.message.count();
+    const totalVocabulary = await prisma.userVocabulary.count();
 
-    const platformAccuracy = totalQuizAttempts > 0
-      ? Math.round((successfulAttempts / totalQuizAttempts) * 100)
-      : 88;
-
-    // Error Frequency Breakdown
-    const incorrectResults = await prisma.quizResult.findMany({
-      where: { isCorrect: false },
-      include: {
-        exercise: {
-          include: {
-            lesson: {
-              include: {
-                module: true,
-              },
-            },
-          },
-        },
-      },
-      take: 100,
+    // Calculate average clarity score
+    const scoredMessages = await prisma.message.findMany({
+      where: { clarityScore: { not: null } },
+      select: { clarityScore: true },
+      take: 200,
     });
 
-    const errorCountsByTopic: Record<string, number> = {};
-    for (const item of incorrectResults) {
-      const topic = item.exercise.lesson.module.title;
-      errorCountsByTopic[topic] = (errorCountsByTopic[topic] || 0) + 1;
-    }
+    const platformAccuracy = scoredMessages.length > 0
+      ? Math.round(scoredMessages.reduce((sum, m) => sum + (m.clarityScore || 0), 0) / scoredMessages.length)
+      : 92;
 
-    const topErrorTopics = Object.entries(errorCountsByTopic)
-      .map(([topic, count]) => ({ topic, count }))
-      .sort((a, b) => b.count - a.count);
+    // Scenarios popularity breakdown
+    const scenarios = await prisma.scenario.findMany({
+      include: {
+        _count: {
+          select: { sessions: true },
+        },
+      },
+      orderBy: { orderIndex: 'asc' },
+    });
+
+    const topScenarios = scenarios.map((s) => ({
+      title: s.title,
+      titleHindi: s.titleHindi,
+      slug: s.slug,
+      sessionCount: s._count.sessions,
+    }));
 
     // Active learners list
     const activeLearners = await prisma.user.findMany({
@@ -61,7 +57,7 @@ export async function GET(request: NextRequest) {
         totalPoints: true,
         lastActiveDate: true,
         _count: {
-          select: { progress: true },
+          select: { sessions: true, vocabulary: true },
         },
       },
       orderBy: { totalPoints: 'desc' },
@@ -73,23 +69,17 @@ export async function GET(request: NextRequest) {
       analytics: {
         totalUsers,
         totalLearners,
-        totalModules,
-        totalLessons,
-        totalExercises,
-        totalQuizAttempts,
+        totalScenarios,
+        totalSessions,
+        totalMessages,
+        totalVocabulary,
         platformAccuracy,
-        topErrorTopics: topErrorTopics.length > 0
-          ? topErrorTopics
-          : [
-              { topic: 'Visiting the Doctor & Describing Health', count: 12 },
-              { topic: 'At the Supermarket & Local Markets', count: 7 },
-              { topic: 'Everyday Greetings & Courtesies', count: 3 },
-            ],
+        topScenarios,
         activeLearners,
       },
     });
   } catch (error) {
-    console.error('Admin analytics error:', error);
-    return NextResponse.json({ error: 'Failed to retrieve admin analytics' }, { status: 500 });
+    console.error('Error fetching admin analytics:', error);
+    return NextResponse.json({ error: 'Failed to retrieve analytics telemetry' }, { status: 500 });
   }
 }

@@ -8,12 +8,14 @@ import {
   CheckCircle2,
   Clock,
   ArrowRight,
-  BookOpen,
-  Mic,
+  BookMarked,
+  MessageCircle,
   TrendingUp,
   Target,
   Sparkles,
   HeartPulse,
+  ShoppingBasket,
+  Users,
 } from 'lucide-react';
 import { useAccessibility } from '@/components/ui/AccessibilityProvider';
 
@@ -32,29 +34,43 @@ export default function DashboardPage() {
         if (resData && resData.stats) {
           setData(resData);
         } else {
-          // Demo fallback state for instant testing
+          // Demo fallback state
           setData({
             stats: {
-              streakCount: 5,
-              totalPoints: 480,
-              level: 2,
-              nextLevelPoints: 500,
-              currentLevelProgress: 230,
-              completedLessonsCount: 2,
-              totalLessons: 4,
-              overallCompletionRate: 50,
-              accuracyRate: 94,
+              userName: 'Shanti Devi',
+              streakCount: 7,
+              totalPoints: 640,
+              level: 4,
+              nextLevelPoints: 800,
+              currentLevelProgress: 40,
+              totalSessions: 5,
+              totalVocabCount: 12,
+              totalMessagesExchanged: 38,
               dailyGoalMinutes: 15,
               todayMinutesSpent: 12,
             },
-            recommendedLesson: {
-              id: 'visiting-doctor-1',
-              title: 'Describing Common Symptoms & Pain Levels',
-              module: {
-                title: 'Visiting the Doctor & Describing Health',
-                category: 'ENGLISH_CORE',
+            recentSessions: [
+              {
+                id: 'sess-1',
+                scenario: {
+                  title: 'Haggling & Buying Vegetables',
+                  titleHindi: 'सब्जी मंडी और खरीदारी',
+                  slug: 'sabzi-mandi',
+                },
+                _count: { messages: 14 },
+                updatedAt: new Date().toISOString(),
               },
-            },
+              {
+                id: 'sess-2',
+                scenario: {
+                  title: 'Visiting Doctor & Explaining Pain',
+                  titleHindi: 'डॉक्टर क्लिनिक में बातचीत',
+                  slug: 'doctor-clinic',
+                },
+                _count: { messages: 10 },
+                updatedAt: new Date().toISOString(),
+              },
+            ],
           });
         }
       })
@@ -64,184 +80,140 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="py-16 text-center">
-        <div className="w-12 h-12 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-lg font-semibold">Loading your learning dashboard...</p>
+      <div className="py-20 text-center">
+        <div className="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-xl font-bold">लोड हो रहा है... Loading your progress</p>
       </div>
     );
   }
 
   const stats = data?.stats || {};
-  const rec = data?.recommendedLesson;
+  const recentSessions = data?.recentSessions || [];
 
   return (
-    <div className="space-y-8 py-2">
+    <div className="space-y-8 py-4 max-w-6xl mx-auto px-4 sm:px-6">
       {/* Welcome Banner */}
       <div
-        className={`p-8 rounded-3xl border-2 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 ${
+        className={`p-6 sm:p-8 rounded-3xl border-2 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 ${
           highContrast
-            ? 'bg-slate-900 border-amber-400 text-amber-100'
-            : 'bg-gradient-to-r from-primary-900 to-primary-700 text-white shadow-xl'
+            ? 'bg-slate-900 border-emerald-400 text-white'
+            : 'bg-gradient-to-r from-emerald-800 to-teal-700 text-white shadow-lg'
         }`}
       >
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <span className="px-3 py-1 rounded-full text-xs uppercase font-bold tracking-wider bg-white/20 text-white">
-              Learner Progress Center
+              Learner Progress • प्रगति विवरण
             </span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-black tracking-tight">
-            Welcome back, Arthur!
+            Namaste, {stats.userName || 'Shanti Devi'} Ji! 🙏
           </h1>
-          <p className="text-base sm:text-lg opacity-90 max-w-xl">
-            You are on a <strong>{stats.streakCount || 5}-day English practice streak</strong>! Consistent daily practice builds natural fluency.
+          <p className="text-base sm:text-lg opacity-90 max-w-xl font-medium">
+            आप <strong>{stats.streakCount || 7} दिनों से लगातार</strong> अंग्रेजी का अभ्यास कर रही हैं। आरती दीदी को आप पर गर्व है!
           </p>
         </div>
 
         <div className="flex items-center gap-4 bg-white/10 dark:bg-black/30 p-4 rounded-2xl border border-white/20">
-          <Flame className="w-10 h-10 text-amber-400 animate-bounce" />
+          <Flame className="w-10 h-10 text-amber-300 animate-bounce" />
           <div>
-            <div className="text-3xl font-black">{stats.streakCount || 5} Days</div>
-            <div className="text-xs uppercase font-semibold opacity-80">Daily Streak</div>
+            <div className="text-3xl font-black">{stats.streakCount || 7} Days</div>
+            <div className="text-xs uppercase font-bold opacity-90">Daily Streak • दैनिक निरंतरता</div>
           </div>
         </div>
       </div>
 
-      {/* Recommended Next Lesson Card */}
-      {rec && (
-        <div
-          className={`p-6 sm:p-8 rounded-3xl border-2 transition-all ${
-            highContrast
-              ? 'bg-slate-900 border-emerald-400'
-              : 'bg-white border-slate-200 shadow-md hover:shadow-lg'
-          }`}
-        >
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-emerald-500" />
-                <span className="text-xs uppercase font-bold tracking-wider text-emerald-600 dark:text-emerald-400">
-                  Recommended For You Today
-                </span>
-              </div>
-              <h2 className="text-2xl font-bold">{rec.title}</h2>
-              <p className="text-sm text-slate-500">
-                Module: {rec.module?.title} &bull; English Core Curriculum
-              </p>
-            </div>
-
-            <Link
-              href={`/lessons/${rec.id}`}
-              className={`px-8 py-4 rounded-2xl font-black text-lg min-h-[52px] flex items-center justify-center gap-2 transition-all shrink-0 ${
-                highContrast
-                  ? 'bg-amber-400 text-black hover:bg-amber-300 border-2 border-white'
-                  : 'bg-primary-600 text-white hover:bg-primary-700 shadow-md'
-              }`}
-            >
-              <span>Resume Lesson</span>
-              <ArrowRight className="w-5 h-5" />
-            </Link>
-          </div>
-        </div>
-      )}
-
       {/* Metrics Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {/* Metric 1: Total Points & Level */}
+        {/* Metric 1: Level & Fluency Points */}
         <div
-          className={`p-6 rounded-2xl border-2 ${
-            highContrast ? 'bg-slate-900 border-amber-400/60' : 'bg-white border-slate-200 shadow-sm'
+          className={`p-6 rounded-3xl border-2 ${
+            highContrast ? 'bg-slate-900 border-emerald-400/60 text-white' : 'bg-white border-slate-200 shadow-sm'
           }`}
         >
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Level & Fluency
+              Level & Points
             </span>
             <Award className="w-5 h-5 text-amber-500" />
           </div>
-          <div className="text-3xl font-black mb-1">
-            Level {stats.level || 2}
-          </div>
-          <p className="text-xs text-slate-500 mb-3">{stats.totalPoints || 480} Fluency Points</p>
+          <div className="text-3xl font-black mb-1">Level {stats.level || 4}</div>
+          <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mb-3">
+            {stats.totalPoints || 640} Fluency Points (अंक)
+          </p>
           <div className="w-full h-2.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
             <div
-              className="h-full bg-amber-500 rounded-full transition-all duration-500"
+              className="h-full bg-emerald-500 rounded-full transition-all duration-500"
               style={{
-                width: `${Math.min(100, Math.round(((stats.currentLevelProgress || 230) / 250) * 100))}%`,
+                width: `${Math.min(100, Math.round(((stats.currentLevelProgress || 40) / 200) * 100))}%`,
               }}
             />
           </div>
         </div>
 
-        {/* Metric 2: Completion Rate */}
+        {/* Metric 2: Sessions Completed */}
         <div
-          className={`p-6 rounded-2xl border-2 ${
-            highContrast ? 'bg-slate-900 border-amber-400/60' : 'bg-white border-slate-200 shadow-sm'
+          className={`p-6 rounded-3xl border-2 ${
+            highContrast ? 'bg-slate-900 border-emerald-400/60 text-white' : 'bg-white border-slate-200 shadow-sm'
           }`}
         >
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Units Completed
+              Speaking Sessions
             </span>
-            <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+            <MessageCircle className="w-5 h-5 text-emerald-500" />
           </div>
-          <div className="text-3xl font-black mb-1">
-            {stats.completedLessonsCount || 2} / {stats.totalLessons || 4}
-          </div>
-          <p className="text-xs text-slate-500 mb-3">
-            {stats.overallCompletionRate || 50}% Curriculum Mastery
-          </p>
+          <div className="text-3xl font-black mb-1">{stats.totalSessions || 5}</div>
+          <p className="text-sm text-slate-500 mb-3">सत्र पूरे किए • Conversations</p>
           <div className="w-full h-2.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
             <div
-              className="h-full bg-emerald-500 rounded-full transition-all duration-500"
-              style={{ width: `${stats.overallCompletionRate || 50}%` }}
+              className="h-full bg-teal-500 rounded-full transition-all duration-500"
+              style={{ width: '85%' }}
             />
           </div>
         </div>
 
-        {/* Metric 3: Accuracy Rate */}
+        {/* Metric 3: Vocabulary Bookmarks */}
         <div
-          className={`p-6 rounded-2xl border-2 ${
-            highContrast ? 'bg-slate-900 border-amber-400/60' : 'bg-white border-slate-200 shadow-sm'
+          className={`p-6 rounded-3xl border-2 ${
+            highContrast ? 'bg-slate-900 border-emerald-400/60 text-white' : 'bg-white border-slate-200 shadow-sm'
           }`}
         >
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Grammar Accuracy
+              Saved Words
             </span>
-            <TrendingUp className="w-5 h-5 text-primary-500" />
+            <BookMarked className="w-5 h-5 text-indigo-500" />
           </div>
-          <div className="text-3xl font-black mb-1">
-            {stats.accuracyRate || 94}%
-          </div>
-          <p className="text-xs text-slate-500 mb-3">High accuracy across exercises</p>
+          <div className="text-3xl font-black mb-1">{stats.totalVocabCount || 12}</div>
+          <p className="text-sm text-slate-500 mb-3">सहेजे गए शब्द • Bookmarks</p>
           <div className="w-full h-2.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
             <div
-              className="h-full bg-primary-500 rounded-full transition-all duration-500"
-              style={{ width: `${stats.accuracyRate || 94}%` }}
+              className="h-full bg-indigo-500 rounded-full transition-all duration-500"
+              style={{ width: '70%' }}
             />
           </div>
         </div>
 
-        {/* Metric 4: Daily Goal */}
+        {/* Metric 4: Daily Goal Minutes */}
         <div
-          className={`p-6 rounded-2xl border-2 ${
-            highContrast ? 'bg-slate-900 border-amber-400/60' : 'bg-white border-slate-200 shadow-sm'
+          className={`p-6 rounded-3xl border-2 ${
+            highContrast ? 'bg-slate-900 border-emerald-400/60 text-white' : 'bg-white border-slate-200 shadow-sm'
           }`}
         >
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Daily Target (15m)
             </span>
-            <Target className="w-5 h-5 text-indigo-500" />
+            <Target className="w-5 h-5 text-rose-500" />
           </div>
           <div className="text-3xl font-black mb-1">
             {stats.todayMinutesSpent || 12} mins
           </div>
-          <p className="text-xs text-slate-500 mb-3">3 minutes left to reach today&apos;s goal</p>
+          <p className="text-sm text-slate-500 mb-3">आज 3 मिनट का अभ्यास बाकी है</p>
           <div className="w-full h-2.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
             <div
-              className="h-full bg-indigo-500 rounded-full transition-all duration-500"
+              className="h-full bg-rose-500 rounded-full transition-all duration-500"
               style={{
                 width: `${Math.min(100, Math.round(((stats.todayMinutesSpent || 12) / 15) * 100))}%`,
               }}
@@ -253,45 +225,77 @@ export default function DashboardPage() {
       {/* Quick Launch Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
         <Link
-          href="/lessons"
+          href="/scenarios"
           className={`p-8 rounded-3xl border-2 transition-all hover:scale-[1.01] ${
             highContrast
-              ? 'bg-slate-900 border-amber-400 text-amber-100 hover:bg-slate-800'
-              : 'bg-white border-slate-200 shadow-sm hover:shadow-md'
+              ? 'bg-slate-900 border-emerald-400 text-white hover:bg-slate-800'
+              : 'bg-white border-emerald-100 shadow-sm hover:shadow-md'
           }`}
         >
-          <div className="w-14 h-14 rounded-2xl bg-primary-100 dark:bg-primary-900/40 text-primary-600 flex items-center justify-center mb-5">
-            <BookOpen className="w-7 h-7" />
+          <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center mb-5">
+            <MessageCircle className="w-7 h-7" />
           </div>
-          <h3 className="text-2xl font-bold mb-2">Structured English Lessons</h3>
-          <p className="text-base text-slate-500 mb-5 leading-relaxed">
-            Browse beginner flashcards, sentence builder puzzles, and vocabulary guides across greetings, shopping, healthcare, and dining.
+          <h3 className="text-2xl font-black mb-2">Practice Speaking • बातचीत अभ्यास</h3>
+          <p className="text-base text-slate-600 dark:text-slate-300 mb-5 leading-relaxed font-medium">
+            सब्जी मंडी, डॉक्टर क्लिनिक, रिश्तेदारों के संदेश, कैफे और नाती-पोतों से बातचीत के 5 व्यावहारिक परिदृश्य।
           </p>
-          <span className="text-base font-bold text-primary-600 dark:text-primary-400 flex items-center gap-1.5">
-            Open All Modules <ArrowRight className="w-5 h-5" />
+          <span className="text-base font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
+            Open All Scenarios • सभी विषय देखें <ArrowRight className="w-5 h-5" />
           </span>
         </Link>
 
         <Link
-          href="/roleplay"
+          href="/vocabulary"
           className={`p-8 rounded-3xl border-2 transition-all hover:scale-[1.01] ${
             highContrast
-              ? 'bg-slate-900 border-indigo-400 text-amber-100 hover:bg-slate-800'
-              : 'bg-white border-slate-200 shadow-sm hover:shadow-md'
+              ? 'bg-slate-900 border-emerald-400 text-white hover:bg-slate-800'
+              : 'bg-white border-emerald-100 shadow-sm hover:shadow-md'
           }`}
         >
-          <div className="w-14 h-14 rounded-2xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 flex items-center justify-center mb-5">
-            <Mic className="w-7 h-7" />
+          <div className="w-14 h-14 rounded-2xl bg-teal-100 text-teal-800 flex items-center justify-center mb-5">
+            <BookMarked className="w-7 h-7" />
           </div>
-          <h3 className="text-2xl font-bold mb-2">Voice Roleplay Simulator</h3>
-          <p className="text-base text-slate-500 mb-5 leading-relaxed">
-            Simulate realistic conversational dialogues (Doctor&apos;s visit, Supermarket clerk, Neighbor greetings) with real-time Web Audio API waveform visualization.
+          <h3 className="text-2xl font-black mb-2">Review Saved Words • मेरा शब्दकोश</h3>
+          <p className="text-base text-slate-600 dark:text-slate-300 mb-5 leading-relaxed font-medium">
+            सहेजे गए शब्दों और वाक्यों का सही उच्चारण धीमी गति से सुनें और दोहराएँ।
           </p>
-          <span className="text-base font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
-            Launch Simulator <ArrowRight className="w-5 h-5" />
+          <span className="text-base font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
+            Open Vocabulary • शब्दकोश खोलें <ArrowRight className="w-5 h-5" />
           </span>
         </Link>
       </div>
+
+      {/* Recent Activity List */}
+      {recentSessions && recentSessions.length > 0 && (
+        <div
+          className={`p-6 sm:p-8 rounded-3xl border-2 ${
+            highContrast ? 'bg-slate-950 border-slate-700' : 'bg-white border-slate-200 shadow-sm'
+          }`}
+        >
+          <h3 className="text-2xl font-black mb-4">Recent Conversations • हालिया बातचीत</h3>
+          <div className="divide-y divide-slate-100 dark:divide-slate-800">
+            {recentSessions.map((s: any) => (
+              <div key={s.id} className="py-4 flex items-center justify-between gap-4">
+                <div>
+                  <h4 className="text-lg font-bold">{s.scenario?.title || 'Everyday Practice'}</h4>
+                  <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium">
+                    {s.scenario?.titleHindi}
+                  </p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    {s._count?.messages || 0} messages exchanged
+                  </p>
+                </div>
+                <Link
+                  href={`/scenarios/${s.scenario?.slug || s.scenario?.id}`}
+                  className="px-4 py-2 rounded-xl bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 font-bold text-sm border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100"
+                >
+                  Continue • जारी रखें
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

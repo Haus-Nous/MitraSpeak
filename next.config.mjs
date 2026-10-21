@@ -43,6 +43,20 @@ const nextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: '/lessons',
+        destination: '/scenarios',
+        permanent: false,
+      },
+      {
+        source: '/lessons/:path*',
+        destination: '/scenarios',
+        permanent: false,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -7,12 +7,14 @@ import {
   Users,
   ShieldAlert,
   CheckCircle,
-  AlertTriangle,
+  MessageCircle,
   History,
   Lock,
   ArrowRight,
   RefreshCw,
   Search,
+  BookMarked,
+  Sparkles,
 } from 'lucide-react';
 import { useAccessibility } from '@/components/ui/AccessibilityProvider';
 
@@ -67,11 +69,11 @@ export default function AdminDashboardPage() {
         </div>
         <h2 className="text-3xl font-black">Admin Access Required</h2>
         <p className="text-slate-500 text-base">
-          You must be signed in with an Administrator account to view platform telemetry and audit logs.
+          You must be signed in with an Administrator account (e.g. Aarti Didi) to view platform telemetry and audit logs.
         </p>
         <Link
           href="/login?role=admin"
-          className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-primary-600 text-white font-bold text-lg"
+          className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-emerald-600 text-white font-bold text-lg"
         >
           <span>Sign In as Admin</span>
           <ArrowRight className="w-5 h-5" />
@@ -83,8 +85,8 @@ export default function AdminDashboardPage() {
   if (loading) {
     return (
       <div className="py-20 text-center">
-        <div className="w-12 h-12 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-base font-bold">Loading compliance analytics & audit stream...</p>
+        <div className="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-base font-bold">Loading BoloEnglish AI telemetry & audit stream...</p>
       </div>
     );
   }
@@ -100,20 +102,20 @@ export default function AdminDashboardPage() {
   });
 
   return (
-    <div className="space-y-10 py-2">
+    <div className="space-y-10 py-2 max-w-6xl mx-auto px-4 sm:px-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-full text-xs uppercase font-bold tracking-wider bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300">
-              Security & Compliance Panel
+            <span className="px-3 py-1 rounded-full text-xs uppercase font-bold tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+              BoloEnglish AI • Mentor & Admin Center
             </span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-black tracking-tight mt-1">
-            Enterprise Analytics & Audit Hub
+            Platform Telemetry & Audit Stream
           </h1>
-          <p className="text-sm text-slate-500 font-medium">
-            Monitor real-time learner success rates, misconception frequencies, and authentication audits.
+          <p className="text-base text-slate-500 font-medium">
+            Real-time monitoring of learner conversation sessions, clarity scores, and security logs.
           </p>
         </div>
 
@@ -131,116 +133,114 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <div
           className={`p-6 rounded-2xl border-2 ${
-            highContrast ? 'bg-slate-900 border-amber-400' : 'bg-white border-slate-200 shadow-sm'
+            highContrast ? 'bg-slate-900 border-emerald-400 text-white' : 'bg-white border-slate-200 shadow-sm'
           }`}
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs uppercase font-bold text-slate-500">Active Learners</span>
-            <Users className="w-5 h-5 text-primary-500" />
+            <span className="text-xs uppercase font-bold text-slate-500">Learners</span>
+            <Users className="w-5 h-5 text-emerald-500" />
           </div>
           <div className="text-3xl font-black">{analytics?.totalLearners || 1}</div>
-          <p className="text-xs text-slate-500 mt-1">Registered learning profiles</p>
+          <p className="text-xs text-slate-500 mt-1">Active family learner accounts</p>
         </div>
 
         <div
           className={`p-6 rounded-2xl border-2 ${
-            highContrast ? 'bg-slate-900 border-amber-400' : 'bg-white border-slate-200 shadow-sm'
+            highContrast ? 'bg-slate-900 border-emerald-400 text-white' : 'bg-white border-slate-200 shadow-sm'
           }`}
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs uppercase font-bold text-slate-500">Platform Accuracy</span>
+            <span className="text-xs uppercase font-bold text-slate-500">Speech Clarity Score</span>
             <CheckCircle className="w-5 h-5 text-emerald-500" />
           </div>
           <div className="text-3xl font-black">{analytics?.platformAccuracy || 92}%</div>
-          <p className="text-xs text-slate-500 mt-1">First-pass response correctness</p>
+          <p className="text-xs text-slate-500 mt-1">Average user response clarity</p>
         </div>
 
         <div
           className={`p-6 rounded-2xl border-2 ${
-            highContrast ? 'bg-slate-900 border-amber-400' : 'bg-white border-slate-200 shadow-sm'
+            highContrast ? 'bg-slate-900 border-emerald-400 text-white' : 'bg-white border-slate-200 shadow-sm'
           }`}
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs uppercase font-bold text-slate-500">Total Exercises</span>
-            <BarChart3 className="w-5 h-5 text-indigo-500" />
+            <span className="text-xs uppercase font-bold text-slate-500">Speaking Sessions</span>
+            <MessageCircle className="w-5 h-5 text-teal-500" />
           </div>
-          <div className="text-3xl font-black">{analytics?.totalExercises || 14}</div>
-          <p className="text-xs text-slate-500 mt-1">Across 4 curriculum modules</p>
+          <div className="text-3xl font-black">{analytics?.totalSessions || 5}</div>
+          <p className="text-xs text-slate-500 mt-1">Across 5 Indian scenarios</p>
         </div>
 
         <div
           className={`p-6 rounded-2xl border-2 ${
-            highContrast ? 'bg-slate-900 border-amber-400' : 'bg-white border-slate-200 shadow-sm'
+            highContrast ? 'bg-slate-900 border-emerald-400 text-white' : 'bg-white border-slate-200 shadow-sm'
           }`}
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs uppercase font-bold text-slate-500">Security Events</span>
-            <ShieldAlert className="w-5 h-5 text-amber-500" />
+            <span className="text-xs uppercase font-bold text-slate-500">Saved Vocabulary</span>
+            <BookMarked className="w-5 h-5 text-indigo-500" />
           </div>
-          <div className="text-3xl font-black">{auditLogs.length}</div>
-          <p className="text-xs text-slate-500 mt-1">Logged in audit trail</p>
+          <div className="text-3xl font-black">{analytics?.totalVocabulary || 12}</div>
+          <p className="text-xs text-slate-500 mt-1">Bookmarked words in शब्दकोश</p>
         </div>
       </div>
 
-      {/* Error Frequency Breakdown */}
-      <section
-        className={`p-6 sm:p-8 rounded-3xl border-2 space-y-6 ${
-          highContrast ? 'bg-slate-900 border-amber-400' : 'bg-white border-slate-200 shadow-sm'
-        }`}
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold">Error Frequency Analytics</h2>
-            <p className="text-sm text-slate-500">
-              Identifies which topics trigger the most errors to guide curriculum reinforcement.
-            </p>
+      {/* Scenario Activity Breakdown */}
+      {analytics?.topScenarios && analytics.topScenarios.length > 0 && (
+        <section
+          className={`p-6 sm:p-8 rounded-3xl border-2 space-y-6 ${
+            highContrast ? 'bg-slate-900 border-emerald-400 text-white' : 'bg-white border-slate-200 shadow-sm'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold">Scenario Engagement Breakdown</h2>
+              <p className="text-sm text-slate-500">
+                Frequency of learner practice sessions across everyday Indian scenarios.
+              </p>
+            </div>
+            <Sparkles className="w-6 h-6 text-emerald-500" />
           </div>
-          <AlertTriangle className="w-6 h-6 text-amber-500" />
-        </div>
 
-        <div className="space-y-4">
-          {analytics?.topErrorTopics?.map((err: any, idx: number) => {
-            const maxCount = analytics.topErrorTopics[0]?.count || 1;
-            const percentage = Math.round((err.count / maxCount) * 100);
+          <div className="space-y-4">
+            {analytics.topScenarios.map((sc: any, idx: number) => {
+              const maxCount = Math.max(1, ...analytics.topScenarios.map((s: any) => s.sessionCount));
+              const percentage = Math.round((sc.sessionCount / maxCount) * 100);
 
-            return (
-              <div key={idx} className="space-y-1.5">
-                <div className="flex items-center justify-between text-sm font-semibold">
-                  <span>{err.topic}</span>
-                  <span className="font-mono text-xs opacity-75">{err.count} errors detected</span>
+              return (
+                <div key={idx} className="space-y-1.5">
+                  <div className="flex items-center justify-between text-sm font-semibold">
+                    <span>
+                      {sc.title} &bull; <span className="text-emerald-600">{sc.titleHindi}</span>
+                    </span>
+                    <span className="font-mono text-xs opacity-75">{sc.sessionCount} sessions</span>
+                  </div>
+                  <div className="w-full h-3 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-500 bg-emerald-500"
+                      style={{ width: `${Math.max(15, percentage)}%` }}
+                    />
+                  </div>
                 </div>
-                <div className="w-full h-3 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all duration-500 ${
-                      idx === 0
-                        ? 'bg-rose-500'
-                        : idx === 1
-                        ? 'bg-amber-500'
-                        : 'bg-primary-500'
-                    }`}
-                    style={{ width: `${percentage}%` }}
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Real-Time Audit Log Table */}
       <section
         className={`p-6 sm:p-8 rounded-3xl border-2 space-y-6 ${
-          highContrast ? 'bg-slate-900 border-amber-400' : 'bg-white border-slate-200 shadow-sm'
+          highContrast ? 'bg-slate-900 border-emerald-400 text-white' : 'bg-white border-slate-200 shadow-sm'
         }`}
       >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <History className="w-5 h-5 text-primary-500" />
+              <History className="w-5 h-5 text-emerald-500" />
               <h2 className="text-2xl font-bold">Audit Log Stream</h2>
             </div>
             <p className="text-sm text-slate-500">
-              Immutable logging of authentication events, lesson submissions, and admin activities.
+              Immutable logging of authentication events, chat messages, and admin activities.
             </p>
           </div>
 
@@ -279,7 +279,7 @@ export default function AdminDashboardPage() {
                         className={`inline-block px-2.5 py-1 rounded-md text-xs font-mono font-bold ${
                           isAlert
                             ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200'
-                            : 'bg-primary-50 text-primary-700 dark:bg-primary-950 dark:text-primary-300'
+                            : 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
                         }`}
                       >
                         {log.action}
