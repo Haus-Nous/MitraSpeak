@@ -505,6 +505,42 @@ async function runTests() {
     assert(rule8.conversationalBenefit.dialogueSnippet.length >= 2, 'Contains realistic dialogue turns');
     assert(rule8.conversationalBenefit.dialogueSnippet[0].phoneticHindi.length > 0, 'Dialogue includes Devanagari phonetics');
 
+    // --- SUITE 15: UI/UX Accessibility Overhaul & 3-Tab One-Tap Architecture ---
+    console.log(`\n--- SUITE 15: UI/UX Accessibility Overhaul & 3-Tab One-Tap Architecture ---`);
+
+    // 15.1 Verify One-Tap Dashboard Progress & Streak Endpoint
+    const dashProgressRes = await makeRequest('/api/progress', {
+      headers: { Authorization: `Bearer ${learnerToken}` },
+    });
+    assert(dashProgressRes.status === 200, 'GET /api/progress for One-Tap Dashboard returns 200 OK');
+    assert(dashProgressRes.body.stats.streakCount >= 7, 'Learner maintains 7+ days daily streak');
+    assert(dashProgressRes.body.stats.totalPoints >= 600, 'Fluency points available for senior dashboard');
+
+    // 15.2 Verify Rules Tab (/rules) API Connectivity
+    const rulesListRes = await makeRequest('/api/grammar/rules');
+    assert(rulesListRes.status === 200, 'GET /api/grammar/rules for Rules Tab returns 200 OK');
+    assert(rulesListRes.body.totalRules === 22, 'Rules Tab has access to all 22 Golden Rules');
+    assert(rulesListRes.body.stages.length === 6, 'Rules Tab groups rules into 6 accessible stages');
+
+    // 15.3 Verify Voice Room (/voice) Direct Speech Assistant Endpoint
+    const voiceRoomRes = await makeRequest('/api/translate-coach', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${learnerToken}`,
+      },
+      body: {
+        action: 'verify',
+        hindiText: 'नमस्ते दीदी, क्या टमाटर ताज़े हैं?',
+        targetEnglish: 'Namaste Didi, are the tomatoes fresh?',
+        userAttempt: 'Namaste Didi, are the tomatoes fresh?',
+      },
+    });
+    assert(voiceRoomRes.status === 200, 'POST /api/translate-coach for Voice Room returns 200 OK');
+    assert(voiceRoomRes.body.success === true, 'Voice room speech translation succeeds');
+    assert(voiceRoomRes.body.verification && voiceRoomRes.body.verification.correctSentence.length > 0, 'Voice room returns ideal English');
+    assert(voiceRoomRes.body.verification.encouragingMessageHindi && voiceRoomRes.body.verification.encouragingMessageHindi.length > 0, 'Aarti Didi returns warm Hindi encouragement');
+
     console.log(`\n===========================================`);
     console.log(`TOTAL TESTS: ${passed + failed} | PASSED: ${passed} | FAILED: ${failed}`);
     console.log(`===========================================\n`);

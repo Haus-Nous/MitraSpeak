@@ -104,33 +104,60 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8 py-4 max-w-6xl mx-auto px-4 sm:px-6">
-      {/* Welcome Banner */}
+      {/* Principle A: Single Primary Action ("One-Tap Flow") */}
+      <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-800 text-white shadow-xl border-2 border-emerald-400/40 relative overflow-hidden">
+        <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/10 to-transparent pointer-events-none" />
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
+          <div className="space-y-2 max-w-xl">
+            <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-white/20 text-emerald-100">
+              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+              <span>One-Tap Learning Flow • आज का मुख्य पाठ</span>
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight">
+              दीदी की कक्षा: बुनियादी वाक्य निर्माण
+            </h2>
+            <p className="text-sm sm:text-base text-emerald-100 font-medium leading-relaxed">
+              आज का लक्ष्य: <strong>Subject + Verb + Object</strong> क्रम सीखें और आरती दीदी के साथ बोलकर अभ्यास करें।
+            </p>
+          </div>
+
+          <Link
+            href="/classroom"
+            className="w-full md:w-auto min-h-[64px] px-8 py-4 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-lg sm:text-xl rounded-2xl shadow-lg hover:shadow-2xl transition-all flex items-center justify-center gap-3 shrink-0 ring-4 ring-amber-400/30 active:scale-95 text-center"
+          >
+            <span>आगे बढ़ें • Continue Learning</span>
+            <ArrowRight className="w-6 h-6 stroke-[3]" />
+          </Link>
+        </div>
+      </div>
+
+      {/* Welcome & Streak Banner */}
       <div
         className={`p-6 sm:p-8 rounded-3xl border-2 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 ${
           highContrast
             ? 'bg-slate-900 border-emerald-400 text-white'
-            : 'bg-gradient-to-r from-emerald-800 to-teal-700 text-white shadow-lg'
+            : 'bg-white border-slate-200 text-slate-900 shadow-sm'
         }`}
       >
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-full text-xs uppercase font-bold tracking-wider bg-white/20 text-white">
+            <span className="px-3 py-1 rounded-full text-xs uppercase font-bold tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
               Learner Progress • प्रगति विवरण
             </span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
             Namaste, {stats.userName || 'Shanti Devi'} Ji! 🙏
           </h1>
-          <p className="text-base sm:text-lg opacity-90 max-w-xl font-medium">
+          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-xl font-medium">
             आप <strong>{stats.streakCount || 7} दिनों से लगातार</strong> अंग्रेजी का अभ्यास कर रही हैं। आरती दीदी को आप पर गर्व है!
           </p>
         </div>
 
-        <div className="flex items-center gap-4 bg-white/10 dark:bg-black/30 p-4 rounded-2xl border border-white/20">
-          <Flame className="w-10 h-10 text-amber-300 animate-bounce" />
+        <div className="flex items-center gap-4 bg-amber-50 dark:bg-amber-950/40 p-4 rounded-2xl border border-amber-200 dark:border-amber-800">
+          <Flame className="w-10 h-10 text-amber-500 animate-bounce" />
           <div>
-            <div className="text-3xl font-black">{stats.streakCount || 7} Days</div>
-            <div className="text-xs uppercase font-bold opacity-90">Daily Streak • दैनिक निरंतरता</div>
+            <div className="text-3xl font-black text-slate-900 dark:text-white">{stats.streakCount || 7} Days</div>
+            <div className="text-xs uppercase font-bold text-amber-700 dark:text-amber-300">Daily Streak • दैनिक निरंतरता</div>
           </div>
         </div>
       </div>

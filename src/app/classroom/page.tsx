@@ -250,7 +250,27 @@ export default function ClassroomPage() {
   };
 
   return (
-    <div className="space-y-8 py-6 max-w-5xl mx-auto px-4 sm:px-6">
+    <div className="space-y-6 py-4 max-w-5xl mx-auto px-4 sm:px-6">
+      {/* Principle C: Top Go Back & Linear Step Indicators */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <Link
+          href="/dashboard"
+          className="min-h-[56px] px-5 py-3 rounded-2xl bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 font-black text-sm sm:text-base flex items-center gap-2 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shrink-0 active:scale-95"
+        >
+          <ChevronLeft className="w-5 h-5 text-emerald-600" />
+          <span>वापस जाएँ • Go Back</span>
+        </Link>
+
+        <div className="px-5 py-3 rounded-2xl bg-slate-900 text-white font-mono text-xs sm:text-sm font-bold flex items-center gap-2.5 shadow-md">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+          <span>
+            {activeTab === 'svo' && '[ Step 1 of 3 • चरण 1: वाक्य निर्माण (SVO) ]'}
+            {activeTab === 'auxiliary' && '[ Step 2 of 3 • चरण 2: सहायक क्रियाएँ (is/am/are) ]'}
+            {activeTab === 'voice' && '[ Step 3 of 3 • चरण 3: बोलकर दोहराएँ (Voice Echo) ]'}
+          </span>
+        </div>
+      </div>
+
       {/* Level 0 Classroom Header */}
       <div
         className={`p-6 sm:p-8 rounded-3xl border-2 transition-all ${
@@ -520,9 +540,17 @@ export default function ClassroomPage() {
               <span className="text-xs font-black uppercase tracking-wider text-cyan-600 dark:text-cyan-400">
                 Fill in the blank with correct auxiliary verb:
               </span>
-              <h3 className="text-2xl sm:text-3xl font-black">
-                {currentAux.sentencePrompt}
-              </h3>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <h3 className="text-2xl sm:text-3xl font-black">
+                  {currentAux.sentencePrompt}
+                </h3>
+                <SpeechPlayer
+                  text={currentAux.sentencePrompt.replace('___', currentAux.targetWord)}
+                  lang="en-IN"
+                  label="वाक्य सुनें • Listen"
+                  className="min-h-[48px] px-3.5 py-2 bg-cyan-100 hover:bg-cyan-200 dark:bg-cyan-950 dark:text-cyan-300 text-xs font-bold rounded-xl shrink-0"
+                />
+              </div>
               <p className="text-lg font-bold text-slate-600 dark:text-slate-300">
                 🇮🇳 {currentAux.sentenceHindi}
               </p>
@@ -567,7 +595,7 @@ export default function ClassroomPage() {
                       key={opt}
                       onClick={() => handleSelectAuxOption(opt)}
                       disabled={isAutoAdvancing}
-                      className={`py-4 px-6 rounded-2xl font-black text-2xl border-2 transition-all hover:scale-105 active:scale-95 ${
+                      className={`min-h-[64px] py-4 px-6 rounded-2xl font-black text-2xl border-2 transition-all hover:scale-105 active:scale-95 touch-target ${
                         isSelected
                           ? opt.toLowerCase() === currentAux.targetWord.toLowerCase()
                             ? 'bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-600/30 ring-4 ring-emerald-200'

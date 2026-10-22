@@ -17,6 +17,23 @@ body {
     )
     rgb(var(--background-start-rgb));
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  font-size: 1.125rem; /* 18px base typography for seniors & adult learners */
+  line-height: 1.6;
+}
+
+/* Accessible touch targets & minimum height (WCAG 2.5.5 / Senior-friendly) */
+button,
+a.action-btn,
+.touch-target {
+  min-height: 56px;
+  touch-action: manipulation;
+}
+
+/* Bilingual subtitle helper for muted Hindi guidance directly under English text */
+.bilingual-sub {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  opacity: 0.85;
 }
 
 /* Accessible focus styling for seniors & keyboard navigation */
@@ -28,15 +45,6 @@ body {
 .high-contrast *:focus-visible {
   outline: 3px solid #f59e0b;
   outline-offset: 3px;
-}
-
-/* Minimum 48px touch targets for accessibility (WCAG 2.5.5) */
-button,
-a,
-input,
-select,
-textarea {
-  touch-action: manipulation;
 }
 
 /* High Contrast Override Theme */
