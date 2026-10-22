@@ -10,6 +10,8 @@ interface WhatsAppVoiceButtonProps {
   onSpeechRecognized?: (transcript: string) => void;
   disabled?: boolean;
   label?: string;
+  lang?: string;
+  size?: 'small' | 'normal' | 'large';
 }
 
 export default function WhatsAppVoiceButton({
@@ -18,6 +20,8 @@ export default function WhatsAppVoiceButton({
   onSpeechRecognized,
   disabled = false,
   label,
+  lang = 'en-IN',
+  size = 'normal',
 }: WhatsAppVoiceButtonProps) {
   const { highContrast } = useAccessibility();
   const [internalRecording, setInternalRecording] = useState(false);
@@ -33,7 +37,7 @@ export default function WhatsAppVoiceButton({
         const recognition = new SpeechRecognition();
         recognition.continuous = false;
         recognition.interimResults = false;
-        recognition.lang = 'hi-IN'; // Accepts Hindi and Indian English
+        recognition.lang = lang || 'en-IN'; // Default to Indian English, accepts Hindi if set
 
         recognition.onresult = (event: any) => {
           const transcript = event.results[0]?.[0]?.transcript;
@@ -99,7 +103,13 @@ export default function WhatsAppVoiceButton({
           onClick={handleClick}
           disabled={disabled}
           aria-label={isRecording ? 'बोलना समाप्त करें (Stop speaking)' : 'बोलने के लिए दबाएं (Tap to speak)'}
-          className={`relative z-10 w-20 h-20 sm:w-22 sm:h-22 rounded-full flex items-center justify-center transition-all duration-200 transform active:scale-95 shadow-xl focus:outline-none focus:ring-4 ${
+          className={`relative z-10 ${
+            size === 'small'
+              ? 'w-14 h-14'
+              : size === 'large'
+              ? 'w-24 h-24 sm:w-26 sm:h-26'
+              : 'w-20 h-20 sm:w-22 sm:h-22'
+          } rounded-full flex items-center justify-center transition-all duration-200 transform active:scale-95 shadow-xl focus:outline-none focus:ring-4 ${
             isRecording
               ? 'bg-rose-600 hover:bg-rose-700 text-white focus:ring-rose-300 ring-4 ring-rose-300 animate-pulse'
               : highContrast
@@ -108,9 +118,9 @@ export default function WhatsAppVoiceButton({
           } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
         >
           {isRecording ? (
-            <Square className="w-8 h-8 fill-current" />
+            <Square className={size === 'small' ? 'w-5 h-5 fill-current' : 'w-8 h-8 fill-current'} />
           ) : (
-            <Mic className="w-9 h-9" />
+            <Mic className={size === 'small' ? 'w-6 h-6' : 'w-9 h-9'} />
           )}
         </button>
       </div>

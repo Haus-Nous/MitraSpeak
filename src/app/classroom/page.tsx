@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import {
   Sparkles,
@@ -41,6 +41,10 @@ export default function ClassroomPage() {
   const [avatarHindiMessage, setAvatarHindiMessage] = useState(AARTI_DIDI_AVATAR_MESSAGES.welcome.hindi);
   const [avatarEnglishMessage, setAvatarEnglishMessage] = useState(AARTI_DIDI_AVATAR_MESSAGES.welcome.english);
 
+  // Auto-advance timer ref
+  const autoAdvanceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [isAutoAdvancing, setIsAutoAdvancing] = useState(false);
+
   // SVO Challenge state
   const [svoIdx, setSvoIdx] = useState(0);
   const currentSVO: SVOExercise = SVO_CHALLENGES[svoIdx] || SVO_CHALLENGES[0];
@@ -49,6 +53,7 @@ export default function ClassroomPage() {
   const [auxIdx, setAuxIdx] = useState(0);
   const currentAux: AuxiliaryDrill = AUXILIARY_DRILLS[auxIdx] || AUXILIARY_DRILLS[0];
   const [selectedAuxOption, setSelectedAuxOption] = useState<string | null>(null);
+  const [auxVoiceTranscribed, setAuxVoiceTranscribed] = useState('');
   const [auxFeedback, setAuxFeedback] = useState<{ isCorrect: boolean; message: string } | null>(null);
 
   // Voice repeat state
@@ -60,6 +65,31 @@ export default function ClassroomPage() {
   const [sessionPoints, setSessionPoints] = useState(0);
   const [completedSVO, setCompletedSVO] = useState<Record<string, boolean>>({});
 
+  // Cleanup auto-advance timer on unmount
+  useEffect(() => {
+    return () => {
+      if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
+    };
+  }, []);
+
+  // Manual next actions
+  const goToNextSVO = () => {
+    if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
+    setSvoIdx((prev) => (prev + 1) % SVO_CHALLENGES.length);
+    setIsAutoAdvancing(false);
+    setAvatarState('idle');
+  };
+
+  const goToNextAux = () => {
+    if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
+    setAuxIdx((prev) => (prev + 1) % AUXILIARY_DRILLS.length);
+    setSelectedAuxOption(null);
+    setAuxFeedback(null);
+    setAuxVoiceTranscribed('');
+    setIsAutoAdvancing(false);
+    setAvatarState('idle');
+  };
+
   // When user successfully builds SVO sentence
   const handleSVOSuccess = async (sentence: string) => {
     setAvatarState('cheering');
@@ -70,6 +100,7 @@ export default function ClassroomPage() {
     setAvatarEnglishMessage(`Excellent work! You constructed: "${sentence}"`);
     setSessionPoints((prev) => prev + 20);
     setCompletedSVO((prev) => ({ ...prev, [currentSVO.id]: true }));
+    setIsAutoAdvancing(true);
 
     // Persist via API
     try {
@@ -86,6 +117,12 @@ export default function ClassroomPage() {
     } catch (e) {
       console.warn('API eval skipped:', e);
     }
+
+    // Auto-advance to next question automatically!
+    if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
+    autoAdvanceTimerRef.current = setTimeout(() => {
+      goToNextSVO();
+    }, 1800);
   };
 
   // When user makes a mistake in SVO
@@ -93,12 +130,13 @@ export default function ClassroomPage() {
     setAvatarState('explaining');
     setAvatarHindiMessage(hint);
     setAvatarEnglishMessage('Let us try once more. Put the Subject first, then the Verb, then the Object!');
+    setIsAutoAdvancing(false);
   };
 
   // Check Auxiliary Verb Choice
-  const handleSelectAuxOption = async (option: 'is' | 'am' | 'are' | 'was' | 'were') => {
+  const handleSelectAuxOption = async (option: string) => {
     setSelectedAuxOption(option);
-    const isCorrect = option === currentAux.targetWord;
+    const isCorrect = option.toLowerCase() === currentAux.targetWord.toLowerCase();
 
     if (isCorrect) {
       setAvatarState('cheering');
@@ -106,9 +144,10 @@ export default function ClassroomPage() {
       setAvatarEnglishMessage(`Correct! "${option}" is the right auxiliary verb.`);
       setAuxFeedback({
         isCorrect: true,
-        message: `शाबाश! बिल्कुल सही उत्तर: "${option}"।`,
+        message: `शाबाश! बिल्कुल सही उत्तर: "${option}"। अगला अभ्यास शुरू हो रहा है... ⏩`,
       });
       setSessionPoints((prev) => prev + 10);
+      setIsAutoAdvancing(true);
 
       try {
         await fetch('/api/grammar/evaluate', {
@@ -124,6 +163,12 @@ export default function ClassroomPage() {
       } catch (e) {
         console.warn('Aux eval API skipped:', e);
       }
+
+      // Auto-advance to next auxiliary drill after 1.8 seconds!
+      if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
+      autoAdvanceTimerRef.current = setTimeout(() => {
+        goToNextAux();
+      }, 1800);
     } else {
       setAvatarState('explaining');
       setAvatarHindiMessage(`थोड़ा सा ध्यान दीजिए: यहाँ "${currentAux.targetWord}" आएगा। ${currentAux.explanationHindi}`);
@@ -132,6 +177,24 @@ export default function ClassroomPage() {
         isCorrect: false,
         message: `यहाँ "${currentAux.targetWord}" आएगा। ${currentAux.explanationHindi}`,
       });
+      setIsAutoAdvancing(false);
+    }
+  };
+
+  // Voice speech for Auxiliary Drill
+  const handleAuxVoiceSpeech = (transcript: string) => {
+    setAuxVoiceTranscribed(transcript);
+    const clean = transcript.toLowerCase().replace(/[^a-z ]/g, '').trim();
+    const words = clean.split(/\s+/);
+
+    const matchedOption = currentAux.options.find((opt) => words.includes(opt));
+    if (matchedOption) {
+      handleSelectAuxOption(matchedOption);
+    } else if (clean.includes(currentAux.targetWord.toLowerCase())) {
+      handleSelectAuxOption(currentAux.targetWord);
+    } else {
+      setAvatarState('explaining');
+      setAvatarHindiMessage(`सुना गया: "${transcript}" — कृपया ${currentAux.options.join(' / ')} में से सही शब्द बोलें!`);
     }
   };
 
@@ -159,13 +222,24 @@ export default function ClassroomPage() {
         setVoiceEvaluation(data);
         if (data.isSuccess) {
           setAvatarState('cheering');
-          setAvatarHindiMessage('शाबाश! आपका उच्चारण बहुत साफ और सुंदर है!');
+          setAvatarHindiMessage('शाबाश! आपका उच्चारण बहुत साफ और सुंदर है! अगले वाक्य पर जा रहे हैं... ⏩');
           setAvatarEnglishMessage(`Great job speaking: "${text}"`);
           setSessionPoints((prev) => prev + 15);
+          setIsAutoAdvancing(true);
+
+          if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
+          autoAdvanceTimerRef.current = setTimeout(() => {
+            setSvoIdx((prev) => (prev + 1) % SVO_CHALLENGES.length);
+            setSpokenAttempt('');
+            setVoiceEvaluation(null);
+            setIsAutoAdvancing(false);
+            setAvatarState('idle');
+          }, 2000);
         } else {
           setAvatarState('explaining');
           setAvatarHindiMessage('बहुत अच्छी कोशिश! एक बार दीदी को धीमी गति से सुनकर दोबारा दोहराएँ।');
           setAvatarEnglishMessage('Good attempt! Listen to Didi once more and repeat.');
+          setIsAutoAdvancing(false);
         }
       }
     } catch (e) {
@@ -299,8 +373,10 @@ export default function ClassroomPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => {
+                  if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
                   const prev = (svoIdx - 1 + SVO_CHALLENGES.length) % SVO_CHALLENGES.length;
                   setSvoIdx(prev);
+                  setIsAutoAdvancing(false);
                   setAvatarState('idle');
                 }}
                 className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -309,11 +385,7 @@ export default function ClassroomPage() {
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <button
-                onClick={() => {
-                  const next = (svoIdx + 1) % SVO_CHALLENGES.length;
-                  setSvoIdx(next);
-                  setAvatarState('idle');
-                }}
+                onClick={goToNextSVO}
                 className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
                 aria-label="Next Sentence"
               >
@@ -322,13 +394,33 @@ export default function ClassroomPage() {
             </div>
           </div>
 
-          {/* Interactive SVO Widget */}
+          {/* Interactive SVO Widget with Voice & Auto-Check */}
           <SentenceBuilderWidget
             key={currentSVO.id}
             exercise={currentSVO}
             onSuccess={handleSVOSuccess}
             onMistake={handleSVOMistake}
+            isAutoAdvancing={isAutoAdvancing}
           />
+
+          {/* Auto-Advance Notification Banner */}
+          {isAutoAdvancing && (
+            <div className="p-4 rounded-2xl bg-teal-600 text-white flex items-center justify-between shadow-lg animate-fadeIn">
+              <div className="flex items-center gap-2.5">
+                <Sparkles className="w-5 h-5 animate-spin" />
+                <span className="font-black text-base">
+                  शाबाश! बिल्कुल सही वाक्य! अगला प्रश्न अपने आप आ रहा है...
+                </span>
+              </div>
+              <button
+                onClick={goToNextSVO}
+                className="px-4 py-1.5 rounded-xl bg-white text-teal-800 font-black text-sm hover:bg-teal-50 shadow-sm flex items-center gap-1 shrink-0"
+              >
+                <span>तुरंत अगला वाक्य</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
 
           {/* Level 0 Grammar Rule Card */}
           <div
@@ -367,10 +459,13 @@ export default function ClassroomPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => {
+                  if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
                   const prev = (auxIdx - 1 + AUXILIARY_DRILLS.length) % AUXILIARY_DRILLS.length;
                   setAuxIdx(prev);
                   setSelectedAuxOption(null);
                   setAuxFeedback(null);
+                  setAuxVoiceTranscribed('');
+                  setIsAutoAdvancing(false);
                   setAvatarState('idle');
                 }}
                 className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -378,13 +473,7 @@ export default function ClassroomPage() {
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <button
-                onClick={() => {
-                  const next = (auxIdx + 1) % AUXILIARY_DRILLS.length;
-                  setAuxIdx(next);
-                  setSelectedAuxOption(null);
-                  setAuxFeedback(null);
-                  setAvatarState('idle');
-                }}
+                onClick={goToNextAux}
                 className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
               >
                 <ChevronRight className="w-5 h-5" />
@@ -411,28 +500,60 @@ export default function ClassroomPage() {
               </p>
             </div>
 
-            {/* Options */}
-            <div className="grid grid-cols-3 gap-4 pt-2">
-              {currentAux.options.map((opt) => {
-                const isSelected = selectedAuxOption === opt;
-                return (
-                  <button
-                    key={opt}
-                    onClick={() => handleSelectAuxOption(opt)}
-                    className={`py-4 px-6 rounded-2xl font-black text-2xl border-2 transition-all hover:scale-105 active:scale-95 ${
-                      isSelected
-                        ? opt === currentAux.targetWord
-                          ? 'bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-600/30'
-                          : 'bg-rose-600 text-white border-rose-600'
-                        : highContrast
-                        ? 'bg-slate-900 text-white border-slate-700'
-                        : 'bg-slate-50 text-slate-800 border-slate-200 hover:border-cyan-400 hover:bg-white'
-                    }`}
-                  >
-                    {opt}
-                  </button>
-                );
-              })}
+            {/* Direct Voice Assistant Input Option */}
+            <div className="p-4 rounded-2xl bg-cyan-50/70 dark:bg-cyan-950/30 border border-cyan-200 dark:border-cyan-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="space-y-1 text-center sm:text-left">
+                <span className="text-xs font-black uppercase tracking-wider text-cyan-800 dark:text-cyan-300 flex items-center gap-1.5 justify-center sm:justify-start">
+                  <Mic className="w-3.5 h-3.5" />
+                  <span>आवाज से बोलकर उत्तर दें (Speak Option):</span>
+                </span>
+                <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  माइक दबाकर सही शब्द बोलें (उदा. &ldquo;{currentAux.targetWord}&rdquo; या पूरा वाक्य) — बोलते ही ऑटो-चेक होगा!
+                </p>
+                {auxVoiceTranscribed && (
+                  <p className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                    पहचाना गया: &ldquo;{auxVoiceTranscribed}&rdquo;
+                  </p>
+                )}
+              </div>
+
+              <WhatsAppVoiceButton
+                onSpeechRecognized={handleAuxVoiceSpeech}
+                lang="en-IN"
+                size="small"
+                label="बोलने के लिए दबाएं"
+                disabled={isAutoAdvancing}
+              />
+            </div>
+
+            {/* Options - Instant check on tap */}
+            <div className="space-y-2">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                या नीचे दिए गए विकल्प पर टैप करें (टैप करते ही ऑटो-चेक होगा):
+              </span>
+              <div className="grid grid-cols-3 gap-4 pt-1">
+                {currentAux.options.map((opt) => {
+                  const isSelected = selectedAuxOption === opt;
+                  return (
+                    <button
+                      key={opt}
+                      onClick={() => handleSelectAuxOption(opt)}
+                      disabled={isAutoAdvancing}
+                      className={`py-4 px-6 rounded-2xl font-black text-2xl border-2 transition-all hover:scale-105 active:scale-95 ${
+                        isSelected
+                          ? opt.toLowerCase() === currentAux.targetWord.toLowerCase()
+                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-600/30 ring-4 ring-emerald-200'
+                            : 'bg-rose-600 text-white border-rose-600 ring-4 ring-rose-200'
+                          : highContrast
+                          ? 'bg-slate-900 text-white border-slate-700'
+                          : 'bg-slate-50 text-slate-800 border-slate-200 hover:border-cyan-400 hover:bg-white'
+                      }`}
+                    >
+                      {opt}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Feedback display */}
@@ -452,6 +573,25 @@ export default function ClassroomPage() {
                   )}
                   <span>{auxFeedback.message}</span>
                 </div>
+              </div>
+            )}
+
+            {/* Auto-Advance Notification Banner */}
+            {isAutoAdvancing && (
+              <div className="p-4 rounded-2xl bg-teal-600 text-white flex items-center justify-between shadow-lg animate-fadeIn">
+                <div className="flex items-center gap-2.5">
+                  <Sparkles className="w-5 h-5 animate-spin" />
+                  <span className="font-black text-base">
+                    शाबाश! अगला अभ्यास अपने आप आ रहा है...
+                  </span>
+                </div>
+                <button
+                  onClick={goToNextAux}
+                  className="px-4 py-1.5 rounded-xl bg-white text-teal-800 font-black text-sm hover:bg-teal-50 shadow-sm flex items-center gap-1 shrink-0"
+                >
+                  <span>तुरंत आगे बढ़ें</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
               </div>
             )}
           </div>
