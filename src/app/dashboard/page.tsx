@@ -50,6 +50,15 @@ export default function DashboardPage() {
               totalMessagesExchanged: 38,
               dailyGoalMinutes: 15,
               todayMinutesSpent: 12,
+              curriculumProgress: [
+                {
+                  level: 'level_0',
+                  completed: true,
+                  score: 95,
+                  svoMastery: 5,
+                  auxiliaryMastery: { is: true, am: true, are: true, was: true, were: false },
+                },
+              ],
             },
             recentSessions: [
               {
@@ -224,7 +233,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* 3-Tier Level Mastery Roadmap */}
+      {/* 4-Tier Level Mastery Roadmap */}
       <div
         className={`p-6 sm:p-8 rounded-3xl border-2 transition-all ${
           highContrast
@@ -235,7 +244,7 @@ export default function DashboardPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
           <div>
             <div className="flex items-center gap-2">
-              <span className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm">
+              <span className="w-8 h-8 rounded-xl bg-cyan-100 text-cyan-800 flex items-center justify-center font-bold text-sm">
                 🗺️
               </span>
               <h2 className="text-2xl font-black tracking-tight">
@@ -243,16 +252,57 @@ export default function DashboardPage() {
               </h2>
             </div>
             <p className="text-sm text-slate-600 dark:text-slate-300 font-medium mt-1">
-              Beginner से Advanced तक कदम-दर-कदम अंग्रेजी बोलना सीखें
+              बुनियाद (Level 0) से Advanced (Level 3) तक कदम-दर-कदम अंग्रेजी बोलना सीखें
             </p>
           </div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 text-xs font-bold border border-emerald-200">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-50 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300 text-xs font-bold border border-cyan-200">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Curated Level-by-Level</span>
+            <span>Curated Level-by-Level (4 Tiers)</span>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          {/* Level 0: Foundations */}
+          <div className="p-5 rounded-2xl border-2 border-cyan-300 dark:border-cyan-700 bg-cyan-50/50 dark:bg-cyan-950/20 space-y-3 flex flex-col justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-cyan-600 text-white">
+                  स्तर 0 • Level 0
+                </span>
+                <span className="text-xs font-bold text-cyan-700 dark:text-cyan-300">
+                  बुनियाद / Foundation
+                </span>
+              </div>
+              <h3 className="text-xl font-black text-slate-900 dark:text-white">
+                बुनियादी व्याकरण
+              </h3>
+              <p className="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
+                Subject + Verb + Object वाक्य निर्माण, auxiliary verbs (is/am/are/was/were) एवं आरती दीदी वॉइस रिपीट।
+              </p>
+              <div className="space-y-1 pt-1 text-xs text-slate-700 dark:text-slate-300">
+                <div className="flex items-center gap-1.5 font-semibold">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-cyan-600" />
+                  <span>SVO वाक्य निर्माण (5 चुनौतियाँ)</span>
+                </div>
+                <div className="flex items-center gap-1.5 font-semibold">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-cyan-600" />
+                  <span>is / am / are / was / were Drills</span>
+                </div>
+                <div className="flex items-center gap-1.5 font-semibold">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-cyan-600" />
+                  <span>आरती दीदी 2D ऑडियो गाइडेंस</span>
+                </div>
+              </div>
+            </div>
+            <Link
+              href="/classroom"
+              className="mt-3 w-full py-2.5 px-3 rounded-xl bg-cyan-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-cyan-700 transition-colors shadow-sm"
+            >
+              <span>दीदी की कक्षा • Open Classroom</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
           {/* Level 1: Beginner */}
           <div className="p-5 rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/20 space-y-3 flex flex-col justify-between">
             <div className="space-y-2">
@@ -261,7 +311,7 @@ export default function DashboardPage() {
                   स्तर 1 • Level 1
                 </span>
                 <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
-                  शुरुआती / Foundation
+                  शुरुआती / Daily
                 </span>
               </div>
               <h3 className="text-xl font-black text-slate-900 dark:text-white">

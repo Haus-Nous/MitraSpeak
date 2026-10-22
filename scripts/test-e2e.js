@@ -343,6 +343,98 @@ async function runTests() {
     assert(Array.isArray(begVocabRes.body.vocabulary), 'Vocabulary list returned');
     assert(begVocabRes.body.vocabulary.every((v) => v.difficulty.toUpperCase() === 'BEGINNER'), 'All returned vocab items are BEGINNER difficulty');
 
+    // ========================================================
+    // SUITE 13: Level 0 Foundations & Aarti Didi Avatar Evaluation
+    // ========================================================
+    console.log('\n--- SUITE 13: Level 0 Foundations & Aarti Didi Avatar Evaluation ---');
+
+    // 13.1 GET Level 0 Curriculum & Drills
+    const l0Res = await makeRequest('/api/grammar/evaluate');
+    assert(l0Res.status === 200, 'GET /api/grammar/evaluate returns 200 OK');
+    assert(Array.isArray(l0Res.body.svoChallenges) && l0Res.body.svoChallenges.length >= 5, 'Returns at least 5 SVO sentence challenges');
+    assert(Array.isArray(l0Res.body.auxiliaryDrills) && l0Res.body.auxiliaryDrills.length >= 6, 'Returns at least 6 auxiliary verb drills');
+    assert(Array.isArray(l0Res.body.lessons) && l0Res.body.lessons.length >= 4, 'Returns Level 0 structured grammar lessons');
+    assert(l0Res.body.avatarMessages && l0Res.body.avatarMessages.cheering, 'Contains Aarti Didi avatar feedback messages');
+
+    // 13.2 Evaluate Correct SVO Sentence Assembly
+    const svoCorrectRes = await makeRequest('/api/grammar/evaluate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${learnerToken}`,
+      },
+      body: {
+        action: 'evaluate_svo',
+        exerciseId: 'svo-1',
+        arrangedTokens: ['I', 'eat', 'an apple.'],
+      },
+    });
+    assert(svoCorrectRes.status === 200, 'POST /api/grammar/evaluate evaluate_svo returns 200 OK');
+    assert(svoCorrectRes.body.isCorrect === true, 'SVO sentence arrangement correctly validated as true');
+    assert(svoCorrectRes.body.avatarMood === 'cheering', 'Aarti Didi mood transitions to cheering on success');
+    assert(svoCorrectRes.body.pointsAwarded === 20, 'Awards 20 points for correct SVO sentence builder');
+
+    // 13.3 Evaluate Incorrect SVO Sentence Assembly
+    const svoIncorrectRes = await makeRequest('/api/grammar/evaluate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${learnerToken}`,
+      },
+      body: {
+        action: 'evaluate_svo',
+        exerciseId: 'svo-1',
+        arrangedTokens: ['eat', 'I', 'an apple.'],
+      },
+    });
+    assert(svoIncorrectRes.status === 200, 'POST /api/grammar/evaluate returns 200 for incorrect SVO');
+    assert(svoIncorrectRes.body.isCorrect === false, 'Incorrect SVO order flagged as false');
+    assert(svoIncorrectRes.body.avatarMood === 'explaining', 'Aarti Didi mood transitions to explaining on error');
+    assert(svoIncorrectRes.body.hindiFeedback && svoIncorrectRes.body.hindiFeedback.length > 0, 'Gentle Hindi explanation provided for mistake');
+
+    // 13.4 Evaluate Auxiliary Verb Drill (is/am/are)
+    const auxCorrectRes = await makeRequest('/api/grammar/evaluate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${learnerToken}`,
+      },
+      body: {
+        action: 'evaluate_auxiliary',
+        drillId: 'aux-1',
+        selectedVerb: 'am',
+      },
+    });
+    assert(auxCorrectRes.status === 200, 'POST /api/grammar/evaluate evaluate_auxiliary returns 200 OK');
+    assert(auxCorrectRes.body.isCorrect === true, 'Auxiliary verb "I -> am" validated as correct');
+    assert(auxCorrectRes.body.avatarMood === 'cheering', 'Aarti Didi avatar cheers for correct auxiliary verb');
+    assert(auxCorrectRes.body.pointsAwarded === 10, 'Awards 10 points for correct auxiliary verb selection');
+
+    // 13.5 Evaluate Voice Repetition with Aarti Didi
+    const voiceRes = await makeRequest('/api/grammar/evaluate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${learnerToken}`,
+      },
+      body: {
+        action: 'evaluate_voice',
+        targetSentence: 'I eat an apple.',
+        spokenText: 'I eat an apple',
+      },
+    });
+    assert(voiceRes.status === 200, 'POST /api/grammar/evaluate evaluate_voice returns 200 OK');
+    assert(voiceRes.body.isMatch === true, 'Voice repetition matches target SVO sentence');
+    assert(voiceRes.body.accuracy >= 90, 'Voice repetition accuracy exceeds 90%');
+    assert(voiceRes.body.pointsAwarded === 15, 'Awards 15 points for spoken repetition');
+
+    // 13.6 Verify Learner Progress Reflects Curriculum Mastery
+    const updatedProgressRes = await makeRequest('/api/progress', {
+      headers: { Authorization: `Bearer ${learnerToken}` },
+    });
+    assert(updatedProgressRes.status === 200, 'GET /api/progress returns 200 OK');
+    assert(Array.isArray(updatedProgressRes.body.stats.curriculumProgress), 'Progress payload includes curriculumProgress relation');
+
     console.log(`\n===========================================`);
     console.log(`TOTAL TESTS: ${passed + failed} | PASSED: ${passed} | FAILED: ${failed}`);
     console.log(`===========================================\n`);

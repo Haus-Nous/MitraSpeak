@@ -69,8 +69,14 @@ export default function Navbar() {
 
   const navLinks = [
     {
+      href: '/classroom',
+      label: 'Classroom (Level 0)',
+      labelHindi: 'दीदी की कक्षा (बुनियाद)',
+      icon: Sparkles,
+    },
+    {
       href: '/scenarios',
-      label: 'Scenarios',
+      label: 'Scenarios (Level 1+)',
       labelHindi: 'बातचीत',
       icon: MessageCircle,
     },

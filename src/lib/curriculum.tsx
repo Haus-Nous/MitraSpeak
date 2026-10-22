@@ -1,9 +1,9 @@
 import React from 'react';
 
-export type ProficiencyTier = 'all' | 'beginner' | 'intermediate' | 'advanced';
+export type ProficiencyTier = 'all' | 'level_0' | 'beginner' | 'intermediate' | 'advanced';
 
 export interface LevelMetadata {
-  id: 'beginner' | 'intermediate' | 'advanced';
+  id: 'level_0' | 'beginner' | 'intermediate' | 'advanced';
   title: string;
   titleHindi: string;
   taglineHindi: string;
@@ -20,7 +20,24 @@ export interface LevelMetadata {
   recommendedFor: string;
 }
 
-export const PROFICIENCY_TIERS: Record<'beginner' | 'intermediate' | 'advanced', LevelMetadata> = {
+export const PROFICIENCY_TIERS: Record<'level_0' | 'beginner' | 'intermediate' | 'advanced', LevelMetadata> = {
+  level_0: {
+    id: 'level_0',
+    title: 'Level 0: Foundations',
+    titleHindi: 'स्तर 0: बुनियादी व्याकरण',
+    taglineHindi: 'बिल्कुल शुरुआत से: is/am/are, was/were और वाक्य निर्माण',
+    description: 'Absolute beginner essentials: subject-verb agreement (I am, He/She is), past auxiliary (was/were), and Subject + Verb + Object sentence building.',
+    colorScheme: {
+      bg: 'bg-cyan-50 dark:bg-cyan-950/40',
+      text: 'text-cyan-900 dark:text-cyan-200',
+      border: 'border-cyan-300 dark:border-cyan-700',
+      badgeBg: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/60 dark:text-cyan-300',
+      badgeText: 'text-cyan-700 dark:text-cyan-400',
+      activeTab: 'bg-cyan-600 text-white shadow-md',
+      iconColor: 'text-cyan-600 dark:text-cyan-400',
+    },
+    recommendedFor: 'Absolute beginners, kids, or adult learners starting English grammar from scratch.',
+  },
   beginner: {
     id: 'beginner',
     title: 'Beginner',
@@ -74,8 +91,14 @@ export const PROFICIENCY_TIERS: Record<'beginner' | 'intermediate' | 'advanced',
   },
 };
 
-export function getTierBadge(level: 'beginner' | 'intermediate' | 'advanced' | string) {
-  const norm = level.toLowerCase();
+export function getTierBadge(level: 'level_0' | 'beginner' | 'intermediate' | 'advanced' | string) {
+  const norm = level.toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (norm === 'level0' || norm === 'level_0' || norm === 'foundation' || norm === 'foundations') {
+    return {
+      label: 'स्तर 0 • Foundations',
+      classes: 'bg-cyan-100 text-cyan-800 border border-cyan-300 dark:bg-cyan-950/70 dark:text-cyan-300 dark:border-cyan-700',
+    };
+  }
   if (norm === 'intermediate' || norm === 'medium') {
     return {
       label: 'मध्यम • Intermediate',

@@ -20,6 +20,7 @@ import {
   Languages,
 } from 'lucide-react';
 import SpeechPlayer from '@/components/SpeechPlayer';
+import AartiDidiAvatar from '@/components/AartiDidiAvatar';
 import { useAccessibility } from '@/components/ui/AccessibilityProvider';
 
 export default function HomePage() {
@@ -91,6 +92,19 @@ export default function HomePage() {
 
         <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
           <Link
+            href="/classroom"
+            className={`px-8 py-4 rounded-2xl font-black text-xl min-h-[58px] flex items-center gap-3 transition-all focus:outline-none focus:ring-4 ${
+              highContrast
+                ? 'bg-cyan-400 text-black hover:bg-cyan-300 border-2 border-white'
+                : 'bg-gradient-to-r from-teal-600 to-cyan-600 text-white hover:from-teal-700 hover:to-cyan-700 shadow-xl shadow-teal-600/30 ring-2 ring-teal-400/50'
+            }`}
+          >
+            <Sparkles className="w-6 h-6 animate-pulse" />
+            <span>दीदी की कक्षा • Classroom (Level 0)</span>
+            <ArrowRight className="w-5 h-5" />
+          </Link>
+
+          <Link
             href="/scenarios"
             className={`px-8 py-4 rounded-2xl font-black text-xl min-h-[58px] flex items-center gap-3 transition-all focus:outline-none focus:ring-4 ${
               highContrast
@@ -142,20 +156,20 @@ export default function HomePage() {
 
         {/* Aarti Didi Welcome Card */}
         <div
-          className={`mt-10 p-6 sm:p-8 rounded-3xl border-2 text-left max-w-3xl mx-auto flex flex-col sm:flex-row items-center gap-6 ${
+          className={`mt-10 p-6 sm:p-8 rounded-3xl border-2 text-left max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-6 ${
             highContrast
               ? 'bg-slate-950 border-emerald-400 text-white'
-              : 'bg-gradient-to-r from-emerald-50/80 via-white to-emerald-50/50 border-emerald-200 text-slate-900 shadow-md'
+              : 'bg-gradient-to-r from-emerald-50/80 via-white to-teal-50/50 border-emerald-200 text-slate-900 shadow-md'
           }`}
         >
-          <div className="w-20 h-20 rounded-full bg-emerald-600 text-white flex items-center justify-center font-black text-3xl shadow-inner shrink-0">
-            दीदी
+          <div className="shrink-0 flex flex-col items-center">
+            <AartiDidiAvatar state="speaking" size="medium" />
           </div>
 
-          <div className="space-y-2 flex-1">
-            <div className="flex items-center justify-between">
+          <div className="space-y-3 flex-1">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="font-black text-xl text-emerald-800 dark:text-emerald-400">
-                Aarti Didi • आरती दीदी (AI Mentor)
+                Aarti Didi • आरती दीदी (AI Teacher & Guide)
               </span>
               <div className="flex items-center gap-2">
                 <SpeechPlayer
@@ -175,8 +189,17 @@ export default function HomePage() {
               </div>
             </div>
             <p className="text-base sm:text-lg font-medium text-slate-700 dark:text-slate-300">
-              &ldquo;नमस्ते जी! गलती करने से बिल्कुल मत डरिए। आप अपनी बात हिंग्लिश में भी बोल सकती हैं। मैं आपकी बड़ी बहन और सहेली की तरह आपको सबसे सहज और स्वाभाविक तरीका सिखाऊँगी।&rdquo;
+              &ldquo;नमस्ते जी! अगर आपको बिल्कुल शुरुआत (Level 0) से सीखना है — जैसे <em>I am, She is, They are</em> या वाक्य कैसे बनाते हैं — तो सीधे मेरी कक्षा में आएं। कोई परीक्षा नहीं, कोई तनाव नहीं!&rdquo;
             </p>
+            <div className="pt-1">
+              <Link
+                href="/classroom"
+                className="inline-flex items-center gap-2 text-sm font-black text-teal-700 dark:text-teal-400 hover:underline"
+              >
+                <span>कक्षा में प्रवेश करें (Enter Classroom)</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -254,21 +277,61 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 3-Tier Curated Learning Path */}
+      {/* 4-Tier Curated Learning Path */}
       <section className="space-y-6">
         <div className="text-center space-y-2 max-w-2xl mx-auto">
           <span className="text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
             Curated Progression • स्तरवार शिक्षण
           </span>
           <h2 className="text-3xl sm:text-4xl font-black">
-            Organized from Beginner to Advanced
+            Organized from Absolute Scratch to Advanced
           </h2>
           <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 font-medium">
-            हर स्तर पर वास्तविक अभ्यास, ओरल टेस्ट, व्याकरण, मुहावरे और शब्दकोश का संपूर्ण संतुलन
+            बुनियादी व्याकरण (Level 0) से लेकर रोजमर्रा की बातचीत, ओरल टेस्ट और धाराप्रवाह अंग्रेजी तक
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Tier 0 - Foundations */}
+          <div
+            className={`p-6 rounded-3xl border-2 flex flex-col justify-between transition-all hover:shadow-md ${
+              highContrast
+                ? 'bg-slate-900 border-cyan-400 text-white ring-2 ring-cyan-400'
+                : 'bg-gradient-to-b from-cyan-50/60 to-white dark:from-cyan-950/20 dark:to-slate-900 border-cyan-300 shadow-sm ring-1 ring-cyan-200'
+            }`}
+          >
+            <div className="space-y-3">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300">
+                🌱 Level 0 • बुनियादी व्याकरण (Foundations)
+              </div>
+              <h3 className="text-2xl font-black">Sentence Building</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">
+                आरती दीदी के साथ शुरू करें: <em>Subject + Verb + Object</em> जोड़ना, सहायक क्रियाएं <em>is/am/are/was/were</em>।
+              </p>
+              <ul className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300 font-semibold pt-2">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-cyan-600" />
+                  <span>Interactive SVO Sentence Builder</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-cyan-600" />
+                  <span>is / am / are & was / were Drills</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-cyan-600" />
+                  <span>Aarti Didi Voice Repeat & Guidance</span>
+                </li>
+              </ul>
+            </div>
+            <Link
+              href="/classroom"
+              className="mt-6 py-3 px-4 rounded-xl bg-cyan-600 text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-cyan-700 transition-colors shadow-sm"
+            >
+              <span>दीदी की कक्षा • Enter Level 0</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
           {/* Tier 1 */}
           <div
             className={`p-6 rounded-3xl border-2 flex flex-col justify-between transition-all hover:shadow-md ${

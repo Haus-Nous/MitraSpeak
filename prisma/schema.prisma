@@ -25,6 +25,8 @@ model User {
   sessions                 ConversationSession[]
   vocabulary               UserVocabulary[]
   auditLogs                AuditLog[]
+  curriculumProgress       CurriculumProgress[]
+  sessionTranscripts       SessionTranscript[]
 }
 
 model Scenario {
@@ -101,3 +103,60 @@ model AuditLog {
 
   user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 }
+
+model Lesson {
+  id                 String               @id @default(uuid())
+  level              String               @default("LEVEL_0") // LEVEL_0, LEVEL_1, LEVEL_2, LEVEL_3
+  category           String               // AUXILIARY_VERBS, SUBJECT_VERB_AGREEMENT, SENTENCE_BUILDING, PAST_AUXILIARY
+  title              String
+  titleHindi         String
+  description        String
+  descriptionHindi   String
+  ruleSummary        String
+  ruleSummaryHindi   String
+  orderIndex         Int                  @default(0)
+  exercises          String               // JSON string of interactive exercises (word ordering, drag-and-drop, was/were/is/am/are fill-ins)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+
+  progress           CurriculumProgress[]
+}
+
+model CurriculumProgress {
+  id                 String    @id @default(uuid())
+  userId             String
+  lessonId           String
+  level              String    @default("LEVEL_0")
+  completed          Boolean   @default(false)
+  score              Int       @default(0) // 0-100
+  accuracyRate       Float     @default(0.0)
+  auxiliaryMastery   String    @default("{}") // JSON tracking counts for is, am, are, was, were
+  svoMastery         Int       @default(0) // Correct SVO sentence constructions
+  avatarMood         String    @default("encouraging") // encouraging, celebrating, explaining
+  completedAt        DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson             Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+}
+
+model SessionTranscript {
+  id                 String    @id @default(uuid())
+  userId             String
+  sessionId          String?
+  sessionType        String    @default("LEVEL_0_CLASSROOM") // LEVEL_0_CLASSROOM, SCENARIO_CHAT, ORAL_PRACTICE
+  avatarState        String    @default("idle") // idle, speaking, listening, cheering, explaining
+  userSpeech         String?
+  aiPrompt           String?
+  aiAudioEmotion     String?   @default("warm") // warm, proud, gentle
+  accuracy           Int?
+  feedbackHindi      String?
+  mistakesJson       String?   // JSON string of diagnosed mistakes
+  createdAt          DateTime  @default(now())
+
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+

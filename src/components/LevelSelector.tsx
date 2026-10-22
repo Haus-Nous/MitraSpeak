@@ -36,6 +36,13 @@ export default function LevelSelector({
         ]
       : []),
     {
+      id: 'level_0',
+      label: 'Level 0: Foundations',
+      hindi: 'बुनियादी स्तर (Level 0)',
+      iconEmoji: '🌱',
+      activeClass: 'bg-cyan-600 text-white shadow-md shadow-cyan-600/30 ring-2 ring-cyan-400',
+    },
+    {
       id: 'beginner',
       label: 'Level 1: Beginner',
       hindi: 'शुरुआती स्तर',

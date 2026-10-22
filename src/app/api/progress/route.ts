@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
           },
         },
         vocabulary: true,
+        curriculumProgress: true,
       },
     });
 
@@ -63,6 +64,7 @@ export async function GET(request: NextRequest) {
         totalMessagesExchanged,
         dailyGoalMinutes: 15,
         todayMinutesSpent: Math.min(15, totalSessions * 5 + 3),
+        curriculumProgress: user.curriculumProgress || [],
       },
       recentSessions: user.sessions.slice(0, 5),
     });

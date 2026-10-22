@@ -8,6 +8,9 @@ async function main() {
 
   // Clear existing records
   await prisma.auditLog.deleteMany();
+  await prisma.sessionTranscript.deleteMany();
+  await prisma.curriculumProgress.deleteMany();
+  await prisma.lesson.deleteMany();
   await prisma.userVocabulary.deleteMany();
   await prisma.message.deleteMany();
   await prisma.conversationSession.deleteMany();
@@ -196,6 +199,211 @@ async function main() {
       },
     ],
   });
+
+  // Seed Level 0 Foundations Lessons
+  const lesson1 = await prisma.lesson.create({
+    data: {
+      id: 'lesson-l0-aux1',
+      level: 'LEVEL_0',
+      category: 'AUXILIARY_VERBS',
+      title: 'I am & You are: Present Identity',
+      titleHindi: 'I am और You are: अपनी पहचान बताना',
+      description: 'Learn when to use "am" with "I" and "are" with "you".',
+      descriptionHindi: '"I" के साथ "am" और "You" के साथ "are" का सही उपयोग सीखें।',
+      ruleSummary: 'Always use "am" with "I". Always use "are" with "You", "We", and "They".',
+      ruleSummaryHindi: '"I" के साथ हमेशा "am" आता है (मैं हूँ)। "You" के साथ हमेशा "are" आता है (आप हैं)।',
+      orderIndex: 1,
+      exercises: JSON.stringify([
+        {
+          id: 'ex-1',
+          type: 'fill_in',
+          question: 'I ___ a teacher.',
+          questionHindi: 'मैं एक अध्यापिका हूँ।',
+          options: ['am', 'is', 'are'],
+          correct: 'am',
+          explanationHindi: '"I" (मैं) के साथ हमेशा "am" (हूँ) आता है।',
+        },
+        {
+          id: 'ex-2',
+          type: 'fill_in',
+          question: 'You ___ very kind.',
+          questionHindi: 'आप बहुत दयालु हैं।',
+          options: ['is', 'are', 'am'],
+          correct: 'are',
+          explanationHindi: '"You" (आप) के साथ हमेशा "are" (हैं) आता है।',
+        },
+      ]),
+    },
+  });
+
+  const lesson2 = await prisma.lesson.create({
+    data: {
+      id: 'lesson-l0-aux2',
+      level: 'LEVEL_0',
+      category: 'SUBJECT_VERB_AGREEMENT',
+      title: 'He is, She is & It is: Third Person Singular',
+      titleHindi: 'He is, She is और It is: वह है',
+      description: 'Learn how singular persons take "is" while plural groups take "are".',
+      descriptionHindi: 'एकवचन (He/She) के साथ "is" और बहुवचन (They/We) के साथ "are" लगाना सीखें।',
+      ruleSummary: 'He is / She is / It is for one person or thing. They are for many.',
+      ruleSummaryHindi: 'किसी एक व्यक्ति (He/She) के लिए "is" का प्रयोग करें। एक से अधिक के लिए "are" का प्रयोग करें।',
+      orderIndex: 2,
+      exercises: JSON.stringify([
+        {
+          id: 'ex-3',
+          type: 'fill_in',
+          question: 'She ___ reading a newspaper.',
+          questionHindi: 'वह अखबार पढ़ रही है।',
+          options: ['is', 'are', 'am'],
+          correct: 'is',
+          explanationHindi: 'एकवचन "She" (स्त्री) के साथ "is" (है) आएगा।',
+        },
+        {
+          id: 'ex-4',
+          type: 'fill_in',
+          question: 'They ___ playing in the garden.',
+          questionHindi: 'वे बगीचे में खेल रहे हैं।',
+          options: ['is', 'am', 'are'],
+          correct: 'are',
+          explanationHindi: 'बहुवचन "They" (वे) के साथ "are" (हैं) आएगा।',
+        },
+      ]),
+    },
+  });
+
+  const lesson3 = await prisma.lesson.create({
+    data: {
+      id: 'lesson-l0-past',
+      level: 'LEVEL_0',
+      category: 'PAST_AUXILIARY',
+      title: 'Was vs Were: Talking about Yesterday',
+      titleHindi: 'Was vs Were: कल की बात (था / थे)',
+      description: 'Use "was" for single subjects (I was, He was, She was) and "were" for plurals (We were, They were, You were).',
+      descriptionHindi: 'एकवचन के लिए "was" (था/थी) और बहुवचन के लिए "were" (थे) का सही प्रयोग।',
+      ruleSummary: 'Singular past = was. Plural and "you" past = were.',
+      ruleSummaryHindi: 'एक व्यक्ति बीती बात = was. एक से अधिक या You = were.',
+      orderIndex: 3,
+      exercises: JSON.stringify([
+        {
+          id: 'ex-5',
+          type: 'fill_in',
+          question: 'Yesterday, I ___ at the temple.',
+          questionHindi: 'कल मैं मंदिर में था/थी।',
+          options: ['was', 'were', 'is'],
+          correct: 'was',
+          explanationHindi: 'बीते हुए कल में "I" के साथ "was" (था/थी) आता है।',
+        },
+        {
+          id: 'ex-6',
+          type: 'fill_in',
+          question: 'We ___ very happy.',
+          questionHindi: 'हम बहुत खुश थे।',
+          options: ['was', 'were', 'am'],
+          correct: 'were',
+          explanationHindi: '"We" (हम) बहुवचन है, इसलिए भूतकाल में "were" (थे) आएगा।',
+        },
+      ]),
+    },
+  });
+
+  const lesson4 = await prisma.lesson.create({
+    data: {
+      id: 'lesson-l0-svo',
+      level: 'LEVEL_0',
+      category: 'SENTENCE_BUILDING',
+      title: 'Subject + Verb + Object: Sentence Architecture',
+      titleHindi: 'Subject + Verb + Object: वाक्य की बुनियाद',
+      description: 'In English, sentences follow SVO order: Who does it (Subject) + Action (Verb) + On what (Object).',
+      descriptionHindi: 'हिंदी में क्रिया अंत में आती है, लेकिन अंग्रेजी में कर्ता (Subject) के तुरंत बाद क्रिया (Verb) आती है।',
+      ruleSummary: 'Formula: [Subject] + [Verb] + [Object] (e.g., I + drink + water).',
+      ruleSummaryHindi: 'नियम: [Subject] + [Verb] + [Object] (उदा. She reads a book / वह किताब पढ़ती है)।',
+      orderIndex: 4,
+      exercises: JSON.stringify([
+        {
+          id: 'svo-1',
+          type: 'word_order',
+          hindiSentence: 'मैं ताज़े सेब खाता हूँ।',
+          targetSentence: 'I eat fresh apples',
+          tokens: ['fresh apples', 'I', 'eat'],
+          correctOrder: ['I', 'eat', 'fresh apples'],
+          subject: 'I',
+          verb: 'eat',
+          object: 'fresh apples',
+        },
+        {
+          id: 'svo-2',
+          type: 'word_order',
+          hindiSentence: 'वह चाय बना रही है।',
+          targetSentence: 'She is making tea',
+          tokens: ['making tea', 'is', 'She'],
+          correctOrder: ['She', 'is', 'making tea'],
+          subject: 'She',
+          verb: 'is',
+          object: 'making tea',
+        },
+        {
+          id: 'svo-3',
+          type: 'word_order',
+          hindiSentence: 'वे क्रिकेट खेल रहे थे।',
+          targetSentence: 'They were playing cricket',
+          tokens: ['playing cricket', 'They', 'were'],
+          correctOrder: ['They', 'were', 'playing cricket'],
+          subject: 'They',
+          verb: 'were',
+          object: 'playing cricket',
+        },
+      ]),
+    },
+  });
+
+  console.log('Seeded 4 foundational Level 0 lessons.');
+
+  // Seed CurriculumProgress for Shanti Devi
+  await prisma.curriculumProgress.create({
+    data: {
+      userId: learner.id,
+      lessonId: lesson1.id,
+      level: 'LEVEL_0',
+      completed: true,
+      score: 95,
+      accuracyRate: 0.95,
+      auxiliaryMastery: JSON.stringify({ is: 4, am: 6, are: 4, was: 2, were: 2 }),
+      svoMastery: 4,
+      avatarMood: 'celebrating',
+      completedAt: new Date(),
+    },
+  });
+
+  await prisma.curriculumProgress.create({
+    data: {
+      userId: learner.id,
+      lessonId: lesson4.id,
+      level: 'LEVEL_0',
+      completed: true,
+      score: 90,
+      accuracyRate: 0.90,
+      auxiliaryMastery: JSON.stringify({ is: 4, am: 6, are: 4, was: 2, were: 2 }),
+      svoMastery: 5,
+      avatarMood: 'celebrating',
+      completedAt: new Date(),
+    },
+  });
+
+  // Seed SessionTranscript
+  await prisma.sessionTranscript.create({
+    data: {
+      userId: learner.id,
+      sessionType: 'LEVEL_0_CLASSROOM',
+      avatarState: 'cheering',
+      userSpeech: 'I am learning English with Aarti Didi',
+      aiPrompt: 'Bahut achha Shanti ji! Sahi vakya banaya aapne: "I am learning English"',
+      aiAudioEmotion: 'proud',
+      accuracy: 98,
+      feedbackHindi: 'शाबाश! आपने बिल्कुल सही वाक्य बनाया।',
+    },
+  });
+
+  console.log('Seeded Level 0 curriculum progress and session transcripts.');
 
   // Seed User Vocabulary Bookmarks for Shanti Devi
   await prisma.userVocabulary.createMany({
