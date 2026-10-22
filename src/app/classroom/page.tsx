@@ -351,6 +351,34 @@ export default function ClassroomPage() {
         </div>
       </div>
 
+      {/* Prominent Golden Rules Master Grammar Banner */}
+      <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 text-white p-5 rounded-3xl shadow-md flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center font-black text-2xl shrink-0">
+            📖
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs uppercase font-black tracking-wider bg-black/20 px-2 py-0.5 rounded-md">
+                Rapidex & Wren-Martin Method
+              </span>
+            </div>
+            <h3 className="text-lg font-black mt-0.5">
+              अंग्रेजी व्याकरण के 22 सुनहरे नियम (Golden Rules)
+            </h3>
+            <p className="text-xs text-white/90">
+              5 साल के बच्चे की तरह शुरू करें: Noun, Pronoun, A vs An, Tenses, Modals, और बातचीत में उनके फायदे!
+            </p>
+          </div>
+        </div>
+        <Link
+          href="/grammar"
+          className="px-5 py-2.5 bg-white text-slate-900 hover:bg-amber-50 rounded-2xl font-black text-sm shrink-0 flex items-center gap-1.5 shadow-sm transition-all"
+        >
+          22 नियम सीखें <ArrowRight className="w-4 h-4 text-amber-600" />
+        </Link>
+      </div>
+
       {/* Interactive 2D Aarti Didi Teacher Avatar */}
       <AartiDidiAvatar
         state={avatarState}

@@ -20,6 +20,7 @@ import {
   X,
   Sparkles,
   Languages,
+  BookOpen,
 } from 'lucide-react';
 import { useAccessibility } from './ui/AccessibilityProvider';
 
@@ -73,6 +74,12 @@ export default function Navbar() {
       label: 'Classroom (Level 0)',
       labelHindi: 'दीदी की कक्षा (बुनियाद)',
       icon: Sparkles,
+    },
+    {
+      href: '/grammar',
+      label: 'Golden Rules',
+      labelHindi: '22 सुनहरे नियम',
+      icon: BookOpen,
     },
     {
       href: '/scenarios',

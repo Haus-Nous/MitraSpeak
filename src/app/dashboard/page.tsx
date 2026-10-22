@@ -17,6 +17,7 @@ import {
   ShoppingBasket,
   Users,
   Languages,
+  BookOpen,
 } from 'lucide-react';
 import { useAccessibility } from '@/components/ui/AccessibilityProvider';
 import { PROFICIENCY_TIERS, getTierBadge } from '@/lib/curriculum';
@@ -426,6 +427,41 @@ export default function DashboardPage() {
             </Link>
           </div>
         </div>
+      </div>
+
+      {/* 22 Golden Rules of English Master Spotlight */}
+      <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-600 rounded-3xl p-6 sm:p-8 text-white shadow-md flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="space-y-2 max-w-2xl">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black bg-black/25 text-white">
+            <BookOpen className="w-3.5 h-3.5 text-amber-200" />
+            <span>Rapidex & Wren-Martin Master Grammar</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-black">
+            22 सुनहरे नियम: बुनियादी से उन्नत व्याकरण
+          </h2>
+          <p className="text-sm sm:text-base text-white/90 font-medium">
+            5 साल के बच्चे की तरह समझें — Noun, Pronoun, A vs An, Tenses का काल चक्र, विनम्र Modals (Could/Would), और बोलचाल में उनका जादुई असर!
+          </p>
+          <div className="flex flex-wrap items-center gap-4 pt-2 text-xs font-bold text-amber-100">
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-white" /> 6 आसान चरण (Stages)
+            </span>
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-white" /> बोलकर अभ्यास (Voice + Auto-Advance)
+            </span>
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-white" /> असली बातचीत के उदाहरण
+            </span>
+          </div>
+        </div>
+
+        <Link
+          href="/grammar"
+          className="px-6 py-4 rounded-2xl bg-white text-slate-900 hover:bg-amber-50 font-black text-sm flex items-center gap-2 shadow-lg hover:shadow-xl transition-all shrink-0"
+        >
+          <span>सुनहरे नियम खोलें • Open Golden Rules</span>
+          <ArrowRight className="w-4 h-4 text-amber-600" />
+        </Link>
       </div>
 
       {/* Quick Launch Cards */}

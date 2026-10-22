@@ -435,6 +435,76 @@ async function runTests() {
     assert(updatedProgressRes.status === 200, 'GET /api/progress returns 200 OK');
     assert(Array.isArray(updatedProgressRes.body.stats.curriculumProgress), 'Progress payload includes curriculumProgress relation');
 
+    // --- SUITE 14: 22 Golden Rules Master Grammar & Rapidex/Wren-Martin Engine ---
+    console.log(`\n--- SUITE 14: 22 Golden Rules Master Grammar & Rapidex/Wren-Martin Engine ---`);
+
+    // 14.1 Fetch All 22 Golden Rules
+    const goldenRulesRes = await makeRequest('/api/grammar/rules');
+    assert(goldenRulesRes.status === 200, 'GET /api/grammar/rules returns 200 OK');
+    assert(goldenRulesRes.body.success === true, 'GET /api/grammar/rules success is true');
+    assert(goldenRulesRes.body.totalRules === 22, 'Returns exactly 22 Golden Rules');
+    assert(Array.isArray(goldenRulesRes.body.stages) && goldenRulesRes.body.stages.length === 6, 'Organized across exactly 6 stages');
+
+    // 14.2 Verify Stage 1: Wren & Martin Articles Sound Rule
+    const rule3 = goldenRulesRes.body.rules.find((r) => r.id === 'rule-3');
+    assert(rule3 !== undefined, 'Contains Rule #3 for Articles (A vs An)');
+    assert(rule3.referenceBook === 'Wren & Martin', 'Rule 3 references Wren & Martin');
+    assert(rule3.explanationHindi.includes('स्वर'), 'Rule 3 explains vowel sound rule in Hindi');
+    assert(rule3.visualFormula.includes('Vowel Sound'), 'Rule 3 has visual formula with sound rule');
+
+    // 14.3 Verify Stage 3: Subject-Verb Agreement (s/es rule)
+    const rule8 = goldenRulesRes.body.rules.find((r) => r.id === 'rule-8');
+    assert(rule8 !== undefined, 'Contains Rule #8 for Subject-Verb Agreement');
+    assert(rule8.wrongExample.includes('He walk'), 'Identifies classic Indian trap "He walk"');
+    assert(rule8.correctExample.includes('He walks'), 'Provides correct "He walks"');
+
+    // 14.4 Verify Stage 4: Tenses Master Cycle
+    const rule12 = goldenRulesRes.body.rules.find((r) => r.id === 'rule-12');
+    const rule13 = goldenRulesRes.body.rules.find((r) => r.id === 'rule-13');
+    assert(rule12 !== undefined && rule12.visualFormula.includes('V2'), 'Rule 12 teaches Simple Past using V2');
+    assert(rule13 !== undefined && rule13.visualFormula.includes('Did'), 'Rule 13 teaches the "Did brings back V1" trap');
+
+    // 14.5 Evaluate MCQ Practice Answer
+    const mcqPracticeRes = await makeRequest('/api/grammar/rules', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${learnerToken}`,
+      },
+      body: {
+        action: 'evaluate_practice',
+        ruleId: 'rule-3',
+        questionId: 'q3-1',
+        selectedAnswer: 'an',
+      },
+    });
+    assert(mcqPracticeRes.status === 200, 'POST /api/grammar/rules evaluate_practice returns 200 OK');
+    assert(mcqPracticeRes.body.isCorrect === true, 'MCQ answer "an hour" correctly validated');
+    assert(mcqPracticeRes.body.pointsAwarded === 25, 'Awards 25 fluency points for correct rule practice');
+
+    // 14.6 Evaluate Spoken Audio Practice Answer
+    const speechPracticeRes = await makeRequest('/api/grammar/rules', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${learnerToken}`,
+      },
+      body: {
+        action: 'evaluate_practice',
+        ruleId: 'rule-1',
+        questionId: 'q1-2',
+        spokenTranscript: 'this is a book',
+      },
+    });
+    assert(speechPracticeRes.status === 200, 'POST /api/grammar/rules evaluates speech transcript');
+    assert(speechPracticeRes.body.isCorrect === true, 'Spoken practice "this is a book" matched target');
+    assert(speechPracticeRes.body.score >= 85, 'Spoken speech achieves high accuracy score');
+
+    // 14.7 Verify Conversational Benefit & Dialogue Snippet
+    assert(rule8.conversationalBenefit !== undefined, 'Rule 8 contains Conversational Benefit structure');
+    assert(rule8.conversationalBenefit.dialogueSnippet.length >= 2, 'Contains realistic dialogue turns');
+    assert(rule8.conversationalBenefit.dialogueSnippet[0].phoneticHindi.length > 0, 'Dialogue includes Devanagari phonetics');
+
     console.log(`\n===========================================`);
     console.log(`TOTAL TESTS: ${passed + failed} | PASSED: ${passed} | FAILED: ${failed}`);
     console.log(`===========================================\n`);
