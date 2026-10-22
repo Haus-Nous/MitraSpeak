@@ -254,6 +254,143 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* 3-Tier Curated Learning Path */}
+      <section className="space-y-6">
+        <div className="text-center space-y-2 max-w-2xl mx-auto">
+          <span className="text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+            Curated Progression • स्तरवार शिक्षण
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-black">
+            Organized from Beginner to Advanced
+          </h2>
+          <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 font-medium">
+            हर स्तर पर वास्तविक अभ्यास, ओरल टेस्ट, व्याकरण, मुहावरे और शब्दकोश का संपूर्ण संतुलन
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Tier 1 */}
+          <div
+            className={`p-6 rounded-3xl border-2 flex flex-col justify-between transition-all hover:shadow-md ${
+              highContrast
+                ? 'bg-slate-900 border-emerald-400 text-white'
+                : 'bg-white border-emerald-200 shadow-sm'
+            }`}
+          >
+            <div className="space-y-3">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                🟢 Level 1 • शुरुआती (Beginner)
+              </div>
+              <h3 className="text-2xl font-black">Daily Essentials</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">
+                सब्जी मंडी, परिवार से आसान बातचीत, is/am/are और बुनियादी वाक्य बोलने का विश्वास।
+              </p>
+              <ul className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300 font-semibold pt-2">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <span>Sabzi Mandi & Family Chat</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <span>Basic Repeat & Oral Drills</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <span>Foundational Idioms & Vocabulary</span>
+                </li>
+              </ul>
+            </div>
+            <Link
+              href="/scenarios"
+              className="mt-6 py-3 px-4 rounded-xl bg-emerald-600 text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-emerald-700 transition-colors shadow-sm"
+            >
+              <span>Explore Beginner • शुरू करें</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          {/* Tier 2 */}
+          <div
+            className={`p-6 rounded-3xl border-2 flex flex-col justify-between transition-all hover:shadow-md ${
+              highContrast
+                ? 'bg-slate-900 border-amber-400 text-white'
+                : 'bg-white border-amber-200 shadow-sm'
+            }`}
+          >
+            <div className="space-y-3">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                🟡 Level 2 • मध्यम (Intermediate)
+              </div>
+              <h3 className="text-2xl font-black">Social & Clinic Fluency</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">
+                डॉक्टर क्लिनिक, शिष्टाचार संदेश, Could you please, और प्रीपोजिशन (in/on/at)।
+              </p>
+              <ul className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300 font-semibold pt-2">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-amber-600" />
+                  <span>Doctor Visit & WhatsApp Chat</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-amber-600" />
+                  <span>Polite Requests & Prepositions</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-amber-600" />
+                  <span>Everyday Situational Phrases</span>
+                </li>
+              </ul>
+            </div>
+            <Link
+              href="/translate-coach"
+              className="mt-6 py-3 px-4 rounded-xl bg-amber-500 text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-amber-600 transition-colors shadow-sm"
+            >
+              <span>Practice Intermediate • अभ्यास करें</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          {/* Tier 3 */}
+          <div
+            className={`p-6 rounded-3xl border-2 flex flex-col justify-between transition-all hover:shadow-md ${
+              highContrast
+                ? 'bg-slate-900 border-rose-400 text-white'
+                : 'bg-white border-rose-200 shadow-sm'
+            }`}
+          >
+            <div className="space-y-3">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300">
+                🔴 Level 3 • उन्नत (Advanced)
+              </div>
+              <h3 className="text-2xl font-black">Travel & Real Confidence</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">
+                हवाई अड्डा, कैफे कस्टमाइज़ेशन, स्कूल PTM, जटिल काल (Tenses), और धाराप्रवाह बातचीत।
+              </p>
+              <ul className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300 font-semibold pt-2">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-rose-600" />
+                  <span>Airport Directions & Cafe Customization</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-rose-600" />
+                  <span>Nuanced Idioms & Fluency Drills</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-rose-600" />
+                  <span>Tense Mastery (do/does/did, since/for)</span>
+                </li>
+              </ul>
+            </div>
+            <Link
+              href="/learn"
+              className="mt-6 py-3 px-4 rounded-xl bg-rose-600 text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-rose-700 transition-colors shadow-sm"
+            >
+              <span>Master Advanced • दक्षता हासिल करें</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Feature Highlights Grid */}
       <section className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <div

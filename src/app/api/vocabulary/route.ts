@@ -30,8 +30,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: true, vocabulary: [] });
     }
 
+    const { searchParams } = new URL(request.url);
+    const difficulty = searchParams.get('difficulty');
+
+    const where: any = { userId: targetUserId };
+    if (difficulty && difficulty.toUpperCase() !== 'ALL') {
+      where.difficulty = difficulty.toUpperCase();
+    }
+
     const vocabulary = await prisma.userVocabulary.findMany({
-      where: { userId: targetUserId },
+      where,
       orderBy: { createdAt: 'desc' },
     });
 
@@ -69,6 +77,7 @@ export async function POST(request: NextRequest) {
     const phonetic = parsed.data.phonetic ? sanitizeString(parsed.data.phonetic) : null;
     const exampleSentence = parsed.data.exampleSentence ? sanitizeString(parsed.data.exampleSentence) : null;
     const category = parsed.data.category ? sanitizeString(parsed.data.category) : 'Everyday';
+    const difficulty = body.difficulty ? sanitizeString(body.difficulty).toUpperCase() : 'BEGINNER';
 
     const item = await prisma.userVocabulary.create({
       data: {
@@ -78,6 +87,7 @@ export async function POST(request: NextRequest) {
         phonetic,
         exampleSentence,
         category,
+        difficulty,
       },
     });
 

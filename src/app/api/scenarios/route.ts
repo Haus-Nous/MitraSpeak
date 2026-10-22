@@ -3,9 +3,18 @@ import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const difficulty = searchParams.get('difficulty');
+
+    const where: any = {};
+    if (difficulty && difficulty.toUpperCase() !== 'ALL') {
+      where.difficulty = difficulty.toUpperCase();
+    }
+
     const scenarios = await prisma.scenario.findMany({
+      where,
       orderBy: { orderIndex: 'asc' },
     });
 

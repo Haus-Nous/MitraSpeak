@@ -18,6 +18,9 @@ import {
 import SpeechPlayer from '@/components/SpeechPlayer';
 import { useAccessibility } from '@/components/ui/AccessibilityProvider';
 
+import LevelSelector from '@/components/LevelSelector';
+import { getTierBadge, ProficiencyTier } from '@/lib/curriculum';
+
 const ICON_MAP: Record<string, any> = {
   ShoppingBasket,
   HeartPulse,
@@ -34,6 +37,7 @@ const FALLBACK_SCENARIOS = [
     title: 'Haggling & Buying Vegetables',
     titleHindi: 'सब्जी मंडी और खरीदारी',
     category: 'DAILY_LIFE',
+    difficulty: 'BEGINNER',
     description: 'Ask for fresh tomatoes, check prices per kilo, ask for extra coriander or green chilies, and pay with cash or UPI.',
     descriptionHindi: 'ताज़ी सब्जियों के दाम पूछना, मोलभाव करना, और मुफ्त धनिया-मिर्ची माँगना सीखें।',
     icon: 'ShoppingBasket',
@@ -43,11 +47,27 @@ const FALLBACK_SCENARIOS = [
     starterAudioHindi: 'नमस्ते माताजी! ताज़े टमाटर और गोभी अभी आए हैं। आपको कितने किलो चाहिए?',
   },
   {
+    id: 'sc-family-grandchildren',
+    slug: 'family-chat',
+    title: 'Casual Conversation with Grandchildren & Family',
+    titleHindi: 'बच्चों और परिवार से बातचीत',
+    category: 'FAMILY',
+    difficulty: 'BEGINNER',
+    description: 'Bond with English-speaking grandkids about school exams, cartoon characters, favourite dinner dishes, and bedtime stories.',
+    descriptionHindi: 'स्कूल, होमवर्क, गेम्स और पसंदीदा खाने के बारे में बच्चों से प्यार भरी बातचीत करना।',
+    icon: 'Users',
+    characterName: 'Aarav (Grandson, 9 yrs)',
+    characterNameHindi: 'आरव (नाती / पोता, 9 वर्ष)',
+    starterAudioText: 'Dadi! Look what drawing I made today in school! Can you see what animal this is?',
+    starterAudioHindi: 'दादी! देखिए मैंने आज स्कूल में क्या ड्राइंग बनाई! क्या आप पहचान सकती हैं यह कौन सा जानवर है?',
+  },
+  {
     id: 'sc-doctor-clinic',
     slug: 'clinic-visit',
     title: 'Talking to a Doctor at a Clinic',
     titleHindi: 'क्लीनिक में डॉक्टर से बातचीत',
     category: 'HEALTH',
+    difficulty: 'INTERMEDIATE',
     description: 'Explain symptoms like headache, stomach ache, fever duration, blood pressure, and ask about dosage timings calmly.',
     descriptionHindi: 'डॉक्टर को सिरदर्द, पेट में दर्द, बुखार और बीपी की दवा के बारे में स्पष्ट अंग्रेजी में बताना।',
     icon: 'HeartPulse',
@@ -62,6 +82,7 @@ const FALLBACK_SCENARIOS = [
     title: 'Polite WhatsApp to Relatives',
     titleHindi: 'रिश्तेदारों को व्हाट्सएप संदेश',
     category: 'SOCIAL',
+    difficulty: 'INTERMEDIATE',
     description: 'Draft warm, polite messages for weddings, birthdays, congratulations, and family WhatsApp groups with perfect etiquette.',
     descriptionHindi: 'शादी, जन्मदिन या त्यौहारों पर अंग्रेजी में आदरपूर्वक और स्नेह से शुभकामना संदेश भेजना।',
     icon: 'Send',
@@ -76,6 +97,7 @@ const FALLBACK_SCENARIOS = [
     title: 'Ordering at Cafe & Airport Gate',
     titleHindi: 'कैफे और एयरपोर्ट सहायता',
     category: 'DAILY_LIFE',
+    difficulty: 'ADVANCED',
     description: 'Order hot ginger tea or cappuccino with less sugar, ask for washroom directions, and confirm flight gate at Delhi/Mumbai airport.',
     descriptionHindi: 'कैफे में चाय-कॉफ़ी ऑर्डर करना और एयरपोर्ट पर बोर्डिंग गेट व पानी पूछना।',
     icon: 'Coffee',
@@ -84,26 +106,13 @@ const FALLBACK_SCENARIOS = [
     starterAudioText: 'Welcome! What would you like to have today? We have masala tea and mild filter coffee.',
     starterAudioHindi: 'स्वागत है! आप क्या लेना पसंद करेंगे? हमारे पास मसाला चाय और फ़िल्टर कॉफ़ी है।',
   },
-  {
-    id: 'sc-family-grandchildren',
-    slug: 'family-chat',
-    title: 'Casual Conversation with Grandchildren & Family',
-    titleHindi: 'बच्चों और परिवार से बातचीत',
-    category: 'FAMILY',
-    description: 'Bond with English-speaking grandkids about school exams, cartoon characters, favourite dinner dishes, and bedtime stories.',
-    descriptionHindi: 'स्कूल, होमवर्क, गेम्स और पसंदीदा खाने के बारे में बच्चों से प्यार भरी बातचीत करना।',
-    icon: 'Users',
-    characterName: 'Aarav (Grandson, 9 yrs)',
-    characterNameHindi: 'आरव (नाती / पोता, 9 वर्ष)',
-    starterAudioText: 'Dadi! Look what drawing I made today in school! Can you see what animal this is?',
-    starterAudioHindi: 'दादी! देखिए मैंने आज स्कूल में क्या ड्राइंग बनाई! क्या आप पहचान सकती हैं यह कौन सा जानवर है?',
-  },
 ];
 
 export default function ScenariosPage() {
   const { highContrast } = useAccessibility();
   const [scenarios, setScenarios] = useState<any[]>(FALLBACK_SCENARIOS);
   const [loading, setLoading] = useState(true);
+  const [selectedLevel, setSelectedLevel] = useState<ProficiencyTier>('all');
 
   useEffect(() => {
     fetch('/api/scenarios')
@@ -123,6 +132,12 @@ export default function ScenariosPage() {
         setLoading(false);
       });
   }, []);
+
+  const filteredScenarios = scenarios.filter((sc) => {
+    if (selectedLevel === 'all') return true;
+    const diff = (sc.difficulty || 'BEGINNER').toLowerCase();
+    return diff === selectedLevel;
+  });
 
   return (
     <div className="space-y-10 py-6 max-w-6xl mx-auto px-4 sm:px-6">
@@ -154,11 +169,29 @@ export default function ScenariosPage() {
         </div>
       </div>
 
+      {/* Level Selector Bar */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <label className="text-base sm:text-lg font-black text-slate-800 dark:text-slate-200">
+            स्तर चुनें • Choose Proficiency Level:
+          </label>
+          <span className="text-sm font-semibold text-slate-500">
+            {filteredScenarios.length} {filteredScenarios.length === 1 ? 'scenario' : 'scenarios'} available
+          </span>
+        </div>
+        <LevelSelector
+          selectedLevel={selectedLevel}
+          onSelectLevel={setSelectedLevel}
+          showAllOption={true}
+        />
+      </div>
+
       {/* Scenarios Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-        {scenarios.map((sc, index) => {
+        {filteredScenarios.map((sc, index) => {
           const IconComp = ICON_MAP[sc.icon] || MessageCircle;
           const targetUrl = `/scenarios/${sc.slug || sc.id}`;
+          const tier = getTierBadge(sc.difficulty || 'BEGINNER');
 
           return (
             <div
@@ -170,7 +203,7 @@ export default function ScenariosPage() {
               }`}
             >
               <div className="space-y-4">
-                {/* Header with Icon and Sequence Badge */}
+                {/* Header with Icon, Level Badge, and Sequence Badge */}
                 <div className="flex items-start justify-between gap-3">
                   <div
                     className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${
@@ -181,15 +214,20 @@ export default function ScenariosPage() {
                   >
                     <IconComp className="w-8 h-8" />
                   </div>
-                  <span
-                    className={`text-xs font-black uppercase tracking-wider px-3 py-1.5 rounded-full ${
-                      highContrast
-                        ? 'bg-slate-800 text-white border border-white'
-                        : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                    }`}
-                  >
-                    Scenario {index + 1}
-                  </span>
+                  <div className="flex items-center gap-2 flex-wrap justify-end">
+                    <span className={`text-xs font-black uppercase tracking-wider px-3 py-1.5 rounded-full ${tier.classes}`}>
+                      {tier.label}
+                    </span>
+                    <span
+                      className={`text-xs font-black uppercase tracking-wider px-3 py-1.5 rounded-full ${
+                        highContrast
+                          ? 'bg-slate-800 text-white border border-white'
+                          : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                      }`}
+                    >
+                      Topic {index + 1}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Scenario Titles */}

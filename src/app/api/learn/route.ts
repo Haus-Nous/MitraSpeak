@@ -18,26 +18,37 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const section = searchParams.get('section');
+    const level = searchParams.get('level')?.toLowerCase();
+
+    const filterByLevel = <T extends { level: string }>(items: T[]) => {
+      if (!level || level === 'all') return items;
+      return items.filter((item) => item.level.toLowerCase() === level);
+    };
+
+    const idioms = filterByLevel(IDIOMS_AND_PHRASES);
+    const grammar = filterByLevel(GRAMMAR_TOPICS);
+    const templates = filterByLevel(CONVERSATION_TEMPLATES);
+    const drills = filterByLevel(REPEAT_DRILLS);
 
     if (section === 'idioms') {
-      return NextResponse.json({ success: true, data: IDIOMS_AND_PHRASES });
+      return NextResponse.json({ success: true, data: idioms });
     }
     if (section === 'grammar') {
-      return NextResponse.json({ success: true, data: GRAMMAR_TOPICS });
+      return NextResponse.json({ success: true, data: grammar });
     }
     if (section === 'templates') {
-      return NextResponse.json({ success: true, data: CONVERSATION_TEMPLATES });
+      return NextResponse.json({ success: true, data: templates });
     }
     if (section === 'drills') {
-      return NextResponse.json({ success: true, data: REPEAT_DRILLS });
+      return NextResponse.json({ success: true, data: drills });
     }
 
     return NextResponse.json({
       success: true,
-      idioms: IDIOMS_AND_PHRASES,
-      grammar: GRAMMAR_TOPICS,
-      templates: CONVERSATION_TEMPLATES,
-      drills: REPEAT_DRILLS,
+      idioms,
+      grammar,
+      templates,
+      drills,
     });
   } catch (error) {
     console.error('Error fetching learning hub data:', error);

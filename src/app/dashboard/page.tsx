@@ -19,6 +19,7 @@ import {
   Languages,
 } from 'lucide-react';
 import { useAccessibility } from '@/components/ui/AccessibilityProvider';
+import { PROFICIENCY_TIERS, getTierBadge } from '@/lib/curriculum';
 
 export default function DashboardPage() {
   const { highContrast } = useAccessibility();
@@ -219,6 +220,160 @@ export default function DashboardPage() {
                 width: `${Math.min(100, Math.round(((stats.todayMinutesSpent || 12) / 15) * 100))}%`,
               }}
             />
+          </div>
+        </div>
+      </div>
+
+      {/* 3-Tier Level Mastery Roadmap */}
+      <div
+        className={`p-6 sm:p-8 rounded-3xl border-2 transition-all ${
+          highContrast
+            ? 'bg-slate-900 border-emerald-400 text-white'
+            : 'bg-white border-slate-200 shadow-sm'
+        }`}
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm">
+                🗺️
+              </span>
+              <h2 className="text-2xl font-black tracking-tight">
+                Your Learning Path • स्तरवार शिक्षण यात्रा
+              </h2>
+            </div>
+            <p className="text-sm text-slate-600 dark:text-slate-300 font-medium mt-1">
+              Beginner से Advanced तक कदम-दर-कदम अंग्रेजी बोलना सीखें
+            </p>
+          </div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 text-xs font-bold border border-emerald-200">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Curated Level-by-Level</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {/* Level 1: Beginner */}
+          <div className="p-5 rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/20 space-y-3 flex flex-col justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-emerald-600 text-white">
+                  स्तर 1 • Level 1
+                </span>
+                <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                  शुरुआती / Foundation
+                </span>
+              </div>
+              <h3 className="text-xl font-black text-slate-900 dark:text-white">
+                शुरुआती (Beginner)
+              </h3>
+              <p className="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
+                दैनिक जीवन, सब्जी मंडी, परिवार से आसान बातचीत, is/am/are और बुनियादी वाक्य।
+              </p>
+              <div className="space-y-1 pt-1 text-xs text-slate-700 dark:text-slate-300">
+                <div className="flex items-center gap-1.5 font-semibold">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>2 वास्तविक दृश्य (Scenarios)</span>
+                </div>
+                <div className="flex items-center gap-1.5 font-semibold">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>3 ओरल चुनौतियाँ (Oral Challenges)</span>
+                </div>
+                <div className="flex items-center gap-1.5 font-semibold">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>बुनियादी मुहावरे और व्याकरण</span>
+                </div>
+              </div>
+            </div>
+            <Link
+              href="/scenarios"
+              className="mt-3 w-full py-2.5 px-3 rounded-xl bg-emerald-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-emerald-700 transition-colors shadow-sm"
+            >
+              <span>Explore Beginner • शुरू करें</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          {/* Level 2: Intermediate */}
+          <div className="p-5 rounded-2xl border-2 border-amber-200 dark:border-amber-800 bg-amber-50/40 dark:bg-amber-950/20 space-y-3 flex flex-col justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-amber-500 text-white">
+                  स्तर 2 • Level 2
+                </span>
+                <span className="text-xs font-bold text-amber-700 dark:text-amber-300">
+                  मध्यम / Conversational
+                </span>
+              </div>
+              <h3 className="text-xl font-black text-slate-900 dark:text-white">
+                मध्यम (Intermediate)
+              </h3>
+              <p className="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
+                डॉक्टर क्लिनिक, शिष्टाचार वाले WhatsApp संदेश, Could you please, और प्रीपोजिशन।
+              </p>
+              <div className="space-y-1 pt-1 text-xs text-slate-700 dark:text-slate-300">
+                <div className="flex items-center gap-1.5 font-semibold">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-600" />
+                  <span>2 सामाजिक दृश्य (Scenarios)</span>
+                </div>
+                <div className="flex items-center gap-1.5 font-semibold">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-600" />
+                  <span>3 ओरल चुनौतियाँ (Oral Challenges)</span>
+                </div>
+                <div className="flex items-center gap-1.5 font-semibold">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-600" />
+                  <span>व्यावहारिक मुहावरे और शिष्टाचार</span>
+                </div>
+              </div>
+            </div>
+            <Link
+              href="/translate-coach"
+              className="mt-3 w-full py-2.5 px-3 rounded-xl bg-amber-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-amber-600 transition-colors shadow-sm"
+            >
+              <span>Practice Intermediate • अभ्यास करें</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          {/* Level 3: Advanced */}
+          <div className="p-5 rounded-2xl border-2 border-rose-200 dark:border-rose-800 bg-rose-50/40 dark:bg-rose-950/20 space-y-3 flex flex-col justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-rose-600 text-white">
+                  स्तर 3 • Level 3
+                </span>
+                <span className="text-xs font-bold text-rose-700 dark:text-rose-300">
+                  उन्नत / Fluent
+                </span>
+              </div>
+              <h3 className="text-xl font-black text-slate-900 dark:text-white">
+                उन्नत (Advanced)
+              </h3>
+              <p className="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
+                हवाई अड्डा, कैफे कस्टमाइज़ेशन, स्कूल PTM, जटिल काल (Tenses), और धाराप्रवाह अंग्रेजी।
+              </p>
+              <div className="space-y-1 pt-1 text-xs text-slate-700 dark:text-slate-300">
+                <div className="flex items-center gap-1.5 font-semibold">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-rose-600" />
+                  <span>1 स्वतंत्र दृश्य (Travel/Cafe)</span>
+                </div>
+                <div className="flex items-center gap-1.5 font-semibold">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-rose-600" />
+                  <span>2 जटिल चुनौतियाँ (Oral Challenges)</span>
+                </div>
+                <div className="flex items-center gap-1.5 font-semibold">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-rose-600" />
+                  <span>उन्नत व्याकरण & मुहावरे</span>
+                </div>
+              </div>
+            </div>
+            <Link
+              href="/learn"
+              className="mt-3 w-full py-2.5 px-3 rounded-xl bg-rose-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-rose-700 transition-colors shadow-sm"
+            >
+              <span>Master Advanced • दक्षता हासिल करें</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
       </div>

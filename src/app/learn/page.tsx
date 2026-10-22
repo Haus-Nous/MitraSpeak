@@ -23,6 +23,8 @@ import {
 import SpeechPlayer from '@/components/SpeechPlayer';
 import WhatsAppVoiceButton from '@/components/WhatsAppVoiceButton';
 import { useAccessibility } from '@/components/ui/AccessibilityProvider';
+import LevelSelector from '@/components/LevelSelector';
+import { getTierBadge, ProficiencyTier } from '@/lib/curriculum';
 import {
   IDIOMS_AND_PHRASES,
   GRAMMAR_TOPICS,
@@ -34,8 +36,9 @@ import {
 export default function LearnHubPage() {
   const { highContrast } = useAccessibility();
 
-  // Active section tab
+  // Active section tab & level tier filter
   const [activeTab, setActiveTab] = useState<'idioms' | 'grammar' | 'templates' | 'repeat'>('idioms');
+  const [selectedLevel, setSelectedLevel] = useState<ProficiencyTier>('all');
 
   // Idioms state
   const [selectedIdiomCategory, setSelectedIdiomCategory] = useState<string>('All');
@@ -47,14 +50,12 @@ export default function LearnHubPage() {
 
   // Listen & Repeat state
   const [drillIdx, setDrillIdx] = useState(0);
-  const currentDrill = REPEAT_DRILLS[drillIdx] || REPEAT_DRILLS[0];
   const [repeatAttempt, setRepeatAttempt] = useState('');
   const [repeatResult, setRepeatResult] = useState<any | null>(null);
   const [isEvaluatingRepeat, setIsEvaluatingRepeat] = useState(false);
 
   // Template state
   const [templateIdx, setTemplateIdx] = useState(0);
-  const currentTemplate = CONVERSATION_TEMPLATES[templateIdx];
 
   // Bookmark an idiom or phrase
   const handleBookmark = async (word: string, hindiMeaning: string, phonetic?: string) => {
@@ -132,14 +133,34 @@ export default function LearnHubPage() {
     }
   };
 
-  // Filter idioms
+  // Filtered collections by selectedLevel
+  const levelFilteredIdioms = IDIOMS_AND_PHRASES.filter(
+    (i) => selectedLevel === 'all' || i.level.toLowerCase() === selectedLevel
+  );
   const filteredIdioms =
     selectedIdiomCategory === 'All'
-      ? IDIOMS_AND_PHRASES
-      : IDIOMS_AND_PHRASES.filter((i) => i.category === selectedIdiomCategory);
+      ? levelFilteredIdioms
+      : levelFilteredIdioms.filter((i) => i.category === selectedIdiomCategory);
 
+  const levelFilteredGrammar = GRAMMAR_TOPICS.filter(
+    (g) => selectedLevel === 'all' || g.level.toLowerCase() === selectedLevel
+  );
   const selectedGrammarTopic =
-    GRAMMAR_TOPICS.find((g) => g.id === selectedGrammarId) || GRAMMAR_TOPICS[0];
+    levelFilteredGrammar.find((g) => g.id === selectedGrammarId) ||
+    levelFilteredGrammar[0] ||
+    GRAMMAR_TOPICS[0];
+
+  const levelFilteredTemplates = CONVERSATION_TEMPLATES.filter(
+    (t) => selectedLevel === 'all' || t.level.toLowerCase() === selectedLevel
+  );
+  const activeTemplates = levelFilteredTemplates.length > 0 ? levelFilteredTemplates : CONVERSATION_TEMPLATES;
+  const currentTemplate = activeTemplates[templateIdx] || activeTemplates[0];
+
+  const levelFilteredDrills = REPEAT_DRILLS.filter(
+    (d) => selectedLevel === 'all' || d.level.toLowerCase() === selectedLevel
+  );
+  const activeDrills = levelFilteredDrills.length > 0 ? levelFilteredDrills : REPEAT_DRILLS;
+  const currentDrill = activeDrills[drillIdx] || activeDrills[0];
 
   return (
     <div className="space-y-8 py-6 max-w-5xl mx-auto px-4 sm:px-6">
@@ -247,6 +268,20 @@ export default function LearnHubPage() {
         </div>
       </div>
 
+      {/* Level Selector Filter */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <label className="text-base sm:text-lg font-black text-slate-800 dark:text-slate-200">
+            कठिनाई स्तर चुनें • Filter Learning Content by Level:
+          </label>
+        </div>
+        <LevelSelector
+          selectedLevel={selectedLevel}
+          onSelectLevel={setSelectedLevel}
+          showAllOption={true}
+        />
+      </div>
+
       {/* ============================================================== */}
       {/* TAB 1: IDIOMS & PHRASES                                        */}
       {/* ============================================================== */}
@@ -285,9 +320,14 @@ export default function LearnHubPage() {
                 >
                   <div className="space-y-2">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-                        {item.category}
-                      </span>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-black uppercase ${getTierBadge(item.level).classes}`}>
+                          {getTierBadge(item.level).label}
+                        </span>
+                        <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300">
+                          {item.category}
+                        </span>
+                      </div>
                       <SpeechPlayer
                         text={item.exampleEnglish}
                         label="आवाज़ सुनें"
@@ -360,34 +400,42 @@ export default function LearnHubPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="space-y-2 lg:col-span-1">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-400 pl-1">
-              व्याकरण के विषय (Grammar Lessons):
+              व्याकरण के विषय ({levelFilteredGrammar.length} Lessons):
             </span>
             <div className="space-y-2">
-              {GRAMMAR_TOPICS.map((topic, i) => (
-                <button
-                  key={topic.id}
-                  onClick={() => setSelectedGrammarId(topic.id)}
-                  className={`w-full p-4 rounded-2xl text-left border-2 transition-all flex items-center justify-between ${
-                    selectedGrammarId === topic.id
-                      ? highContrast
-                        ? 'bg-slate-900 border-emerald-400 text-white shadow-md'
-                        : 'bg-emerald-50 border-emerald-300 text-emerald-950 shadow-sm'
-                      : highContrast
-                      ? 'bg-black border-slate-800 text-slate-300 hover:bg-slate-900'
-                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
-                  }`}
-                >
-                  <div>
-                    <span className="text-xs font-bold text-emerald-600 block">
-                      नियम {i + 1}
-                    </span>
-                    <h4 className="font-bold text-base leading-snug">
-                      {topic.titleHindi}
-                    </h4>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-slate-400 shrink-0 ml-2" />
-                </button>
-              ))}
+              {levelFilteredGrammar.map((topic, i) => {
+                const tier = getTierBadge(topic.level);
+                return (
+                  <button
+                    key={topic.id}
+                    onClick={() => setSelectedGrammarId(topic.id)}
+                    className={`w-full p-4 rounded-2xl text-left border-2 transition-all flex items-center justify-between ${
+                      selectedGrammarId === topic.id
+                        ? highContrast
+                          ? 'bg-slate-900 border-emerald-400 text-white shadow-md'
+                          : 'bg-emerald-50 border-emerald-300 text-emerald-950 shadow-sm'
+                        : highContrast
+                        ? 'bg-black border-slate-800 text-slate-300 hover:bg-slate-900'
+                        : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${tier.classes}`}>
+                          {tier.label}
+                        </span>
+                        <span className="text-xs font-bold text-emerald-600">
+                          नियम {i + 1}
+                        </span>
+                      </div>
+                      <h4 className="font-bold text-base leading-snug">
+                        {topic.titleHindi}
+                      </h4>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-400 shrink-0 ml-2" />
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -399,9 +447,14 @@ export default function LearnHubPage() {
             }`}
           >
             <div className="space-y-2">
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-                {selectedGrammarTopic.title}
-              </span>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className={`px-2.5 py-0.5 rounded-full text-xs font-black uppercase ${getTierBadge(selectedGrammarTopic.level).classes}`}>
+                  {getTierBadge(selectedGrammarTopic.level).label}
+                </span>
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300">
+                  {selectedGrammarTopic.title}
+                </span>
+              </div>
               <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
                 {selectedGrammarTopic.titleHindi}
               </h2>
@@ -513,17 +566,20 @@ export default function LearnHubPage() {
       {activeTab === 'templates' && (
         <div className="space-y-6">
           <div className="flex flex-wrap gap-2">
-            {CONVERSATION_TEMPLATES.map((tmpl, idx) => (
+            {activeTemplates.map((tmpl, idx) => (
               <button
                 key={tmpl.id}
                 onClick={() => setTemplateIdx(idx)}
-                className={`px-4 py-2 rounded-2xl font-bold text-sm transition-all border ${
+                className={`px-4 py-2 rounded-2xl font-bold text-sm transition-all border flex items-center gap-2 ${
                   templateIdx === idx
                     ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
                     : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-emerald-50'
                 }`}
               >
-                {tmpl.situationHindi}
+                <span>{tmpl.situationHindi}</span>
+                <span className={`text-[10px] uppercase font-black px-1.5 py-0.5 rounded-full ${getTierBadge(tmpl.level).classes}`}>
+                  {getTierBadge(tmpl.level).label.split('•')[0]}
+                </span>
               </button>
             ))}
           </div>
@@ -536,9 +592,14 @@ export default function LearnHubPage() {
             }`}
           >
             <div className="space-y-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                दैनिक जीवन का प्रसंग (Daily Life Context):
-              </span>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className={`px-2.5 py-0.5 rounded-full text-xs font-black uppercase ${getTierBadge(currentTemplate.level).classes}`}>
+                  {getTierBadge(currentTemplate.level).label}
+                </span>
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                  दैनिक जीवन का प्रसंग (Daily Life Context)
+                </span>
+              </div>
               <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
                 {currentTemplate.situationHindi}
               </h2>
@@ -596,9 +657,14 @@ export default function LearnHubPage() {
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                  अभ्यास {drillIdx + 1} / {REPEAT_DRILLS.length} • {currentDrill.categoryHindi}
-                </span>
+                <div className="flex items-center gap-2 flex-wrap mb-1">
+                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-black uppercase ${getTierBadge(currentDrill.level).classes}`}>
+                    {getTierBadge(currentDrill.level).label}
+                  </span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                    अभ्यास {drillIdx + 1} / {activeDrills.length} • {currentDrill.categoryHindi}
+                  </span>
+                </div>
                 <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-0.5">
                   पहले दीदी को सुनें, फिर खुद दोहराएं (Listen & Repeat)
                 </h2>

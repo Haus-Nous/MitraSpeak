@@ -14,7 +14,14 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    const challenges = getOralChallenges();
+    const { searchParams } = new URL(request.url);
+    const level = searchParams.get('level')?.toLowerCase();
+
+    let challenges = getOralChallenges();
+    if (level && level !== 'all') {
+      challenges = challenges.filter((c) => c.level.toLowerCase() === level);
+    }
+
     return NextResponse.json({
       success: true,
       challenges,

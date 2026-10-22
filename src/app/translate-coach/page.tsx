@@ -29,9 +29,11 @@ import {
 } from 'lucide-react';
 import WhatsAppVoiceButton from '@/components/WhatsAppVoiceButton';
 import SpeechPlayer from '@/components/SpeechPlayer';
+import LevelSelector from '@/components/LevelSelector';
 import { useAccessibility } from '@/components/ui/AccessibilityProvider';
 import { ORAL_CHALLENGES, OralChallenge } from '@/lib/translate-engine';
 import { REPEAT_DRILLS, evaluateRepeatAttempt } from '@/lib/learning-hub';
+import { ProficiencyTier, TierBadge } from '@/lib/curriculum';
 
 interface VocabularyItem {
   word: string;
@@ -110,13 +112,24 @@ export default function TranslateCoachPage() {
   // Active Mode: 'challenge' (Aarti Didi Speaks Hindi & Asks user to convert) | 'repeat' (Listen & Repeat after Didi) | 'custom' (User's own sentence)
   const [activeMode, setActiveMode] = useState<'challenge' | 'repeat' | 'custom'>('challenge');
 
+  // Proficiency Tier Filter
+  const [selectedLevel, setSelectedLevel] = useState<ProficiencyTier>('all');
+
   // Oral Challenge State
   const [challengeIdx, setChallengeIdx] = useState(0);
-  const currentChallenge: OralChallenge = ORAL_CHALLENGES[challengeIdx] || ORAL_CHALLENGES[0];
+  const filteredChallenges = selectedLevel === 'all'
+    ? ORAL_CHALLENGES
+    : ORAL_CHALLENGES.filter((c) => c.level === selectedLevel);
+  const safeChallengeIdx = challengeIdx >= filteredChallenges.length ? 0 : challengeIdx;
+  const currentChallenge: OralChallenge = filteredChallenges[safeChallengeIdx] || ORAL_CHALLENGES[0];
 
   // Listen & Repeat State
   const [drillIdx, setDrillIdx] = useState(0);
-  const currentDrill = REPEAT_DRILLS[drillIdx] || REPEAT_DRILLS[0];
+  const filteredDrills = selectedLevel === 'all'
+    ? REPEAT_DRILLS
+    : REPEAT_DRILLS.filter((d) => d.level === selectedLevel);
+  const safeDrillIdx = drillIdx >= filteredDrills.length ? 0 : drillIdx;
+  const currentDrill = filteredDrills[safeDrillIdx] || REPEAT_DRILLS[0];
   const [repeatResult, setRepeatResult] = useState<any | null>(null);
   const [isEvaluatingRepeat, setIsEvaluatingRepeat] = useState(false);
 
@@ -135,14 +148,18 @@ export default function TranslateCoachPage() {
 
   // Challenge cycle handlers
   const handleNextChallenge = () => {
-    const nextIdx = (challengeIdx + 1) % ORAL_CHALLENGES.length;
+    const total = filteredChallenges.length;
+    if (total === 0) return;
+    const nextIdx = (safeChallengeIdx + 1) % total;
     setChallengeIdx(nextIdx);
     setEnglishAttempt('');
     setVerification(null);
   };
 
   const handlePrevChallenge = () => {
-    const prevIdx = (challengeIdx - 1 + ORAL_CHALLENGES.length) % ORAL_CHALLENGES.length;
+    const total = filteredChallenges.length;
+    if (total === 0) return;
+    const prevIdx = (safeChallengeIdx - 1 + total) % total;
     setChallengeIdx(prevIdx);
     setEnglishAttempt('');
     setVerification(null);
@@ -405,6 +422,21 @@ export default function TranslateCoachPage() {
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
+
+        {/* Proficiency Tier Filter */}
+        <div className="mt-4 pt-4 border-t border-emerald-200/50 dark:border-slate-800">
+          <LevelSelector
+            selectedTier={selectedLevel}
+            onSelectTier={(tier) => {
+              setSelectedLevel(tier);
+              setChallengeIdx(0);
+              setDrillIdx(0);
+              setEnglishAttempt('');
+              setVerification(null);
+              setRepeatResult(null);
+            }}
+          />
+        </div>
       </div>
 
       {/* ============================================================== */}
@@ -422,16 +454,19 @@ export default function TranslateCoachPage() {
           >
             {/* Top Navigation between challenges */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
-              <div className="flex items-center gap-2">
-                <span className="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 flex items-center justify-center font-bold">
+              <div className="flex items-center gap-3">
+                <span className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 flex items-center justify-center font-bold">
                   <IconComponent className="w-5 h-5" />
                 </span>
                 <div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                    {currentChallenge.categoryHindi} • {currentChallenge.category}
-                  </span>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                      {currentChallenge.categoryHindi} • {currentChallenge.category}
+                    </span>
+                    <TierBadge level={currentChallenge.level || 'beginner'} />
+                  </div>
                   <div className="text-sm font-bold text-slate-500">
-                    चुनौती {challengeIdx + 1} / {ORAL_CHALLENGES.length}
+                    चुनौती {safeChallengeIdx + 1} / {filteredChallenges.length}
                   </div>
                 </div>
               </div>
@@ -735,9 +770,12 @@ export default function TranslateCoachPage() {
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                  अभ्यास {drillIdx + 1} / {REPEAT_DRILLS.length} • {currentDrill.categoryHindi}
-                </span>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                    अभ्यास {safeDrillIdx + 1} / {filteredDrills.length} • {currentDrill.categoryHindi}
+                  </span>
+                  <TierBadge level={currentDrill.level || 'beginner'} />
+                </div>
                 <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-0.5">
                   पहले दीदी को सुनें, फिर खुद दोहराएं (Listen & Repeat)
                 </h2>
@@ -746,7 +784,8 @@ export default function TranslateCoachPage() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => {
-                    const prev = (drillIdx - 1 + REPEAT_DRILLS.length) % REPEAT_DRILLS.length;
+                    const total = filteredDrills.length;
+                    const prev = (safeDrillIdx - 1 + total) % (total || 1);
                     setDrillIdx(prev);
                     setEnglishAttempt('');
                     setRepeatResult(null);
@@ -757,7 +796,8 @@ export default function TranslateCoachPage() {
                 </button>
                 <button
                   onClick={() => {
-                    const next = (drillIdx + 1) % REPEAT_DRILLS.length;
+                    const total = filteredDrills.length;
+                    const next = (safeDrillIdx + 1) % (total || 1);
                     setDrillIdx(next);
                     setEnglishAttempt('');
                     setRepeatResult(null);
@@ -924,7 +964,8 @@ export default function TranslateCoachPage() {
 
                   <button
                     onClick={() => {
-                      const next = (drillIdx + 1) % REPEAT_DRILLS.length;
+                      const total = filteredDrills.length;
+                      const next = (safeDrillIdx + 1) % (total || 1);
                       setDrillIdx(next);
                       setEnglishAttempt('');
                       setRepeatResult(null);

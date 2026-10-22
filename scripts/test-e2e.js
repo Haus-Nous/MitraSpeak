@@ -306,6 +306,43 @@ async function runTests() {
     assert(quizSubRes.body.isCorrect === true, 'Grammar quiz answer is validated');
     assert(quizSubRes.body.pointsAwarded === 10, 'Awards 10 points for correct quiz answer');
 
+    // ========================================================
+    // SUITE 12: Level Curation & Proficiency Tier Filtering
+    // ========================================================
+    console.log('\n--- SUITE 12: Level-by-Level Proficiency Curation ---');
+
+    // 12.1 Filter Scenarios by Beginner Difficulty
+    const begScenRes = await makeRequest('/api/scenarios?difficulty=beginner');
+    assert(begScenRes.status === 200, 'GET /api/scenarios?difficulty=beginner returns 200');
+    assert(Array.isArray(begScenRes.body.scenarios) && begScenRes.body.scenarios.length > 0, 'Returns beginner scenarios');
+    assert(begScenRes.body.scenarios.every((s) => s.difficulty === 'BEGINNER'), 'All filtered scenarios are BEGINNER level');
+
+    // 12.2 Filter Learn Hub by Beginner Level
+    const begLearnRes = await makeRequest('/api/learn?level=beginner');
+    assert(begLearnRes.status === 200, 'GET /api/learn?level=beginner returns 200');
+    assert(begLearnRes.body.idioms.every((i) => i.level === 'beginner'), 'All returned idioms are beginner tier');
+    assert(begLearnRes.body.grammar.every((g) => g.level === 'beginner'), 'All returned grammar topics are beginner tier');
+    assert(begLearnRes.body.drills.every((d) => d.level === 'beginner'), 'All returned repeat drills are beginner tier');
+
+    // 12.3 Filter Learn Hub by Advanced Level
+    const advLearnRes = await makeRequest('/api/learn?level=advanced');
+    assert(advLearnRes.status === 200, 'GET /api/learn?level=advanced returns 200');
+    assert(advLearnRes.body.idioms.every((i) => i.level === 'advanced'), 'All returned idioms are advanced tier');
+    assert(advLearnRes.body.grammar.every((g) => g.level === 'advanced'), 'All returned grammar topics are advanced tier');
+
+    // 12.4 Filter Translate Oral Challenges by Beginner Level
+    const begChallengeRes = await makeRequest('/api/translate-coach?level=beginner');
+    assert(begChallengeRes.status === 200, 'GET /api/translate-coach?level=beginner returns 200');
+    assert(begChallengeRes.body.challenges.every((c) => c.level === 'beginner'), 'All returned oral challenges are beginner tier');
+
+    // 12.5 Filter Vocabulary by Difficulty
+    const begVocabRes = await makeRequest('/api/vocabulary?difficulty=beginner', {
+      headers: { Authorization: `Bearer ${learnerToken}` },
+    });
+    assert(begVocabRes.status === 200, 'GET /api/vocabulary?difficulty=beginner returns 200');
+    assert(Array.isArray(begVocabRes.body.vocabulary), 'Vocabulary list returned');
+    assert(begVocabRes.body.vocabulary.every((v) => v.difficulty.toUpperCase() === 'BEGINNER'), 'All returned vocab items are BEGINNER difficulty');
+
     console.log(`\n===========================================`);
     console.log(`TOTAL TESTS: ${passed + failed} | PASSED: ${passed} | FAILED: ${failed}`);
     console.log(`===========================================\n`);

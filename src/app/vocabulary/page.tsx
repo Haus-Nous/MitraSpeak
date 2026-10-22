@@ -16,7 +16,9 @@ import {
   MessageCircle,
 } from 'lucide-react';
 import SpeechPlayer from '@/components/SpeechPlayer';
+import LevelSelector from '@/components/LevelSelector';
 import { useAccessibility } from '@/components/ui/AccessibilityProvider';
+import { ProficiencyTier, TierBadge } from '@/lib/curriculum';
 
 interface VocabItem {
   id: string;
@@ -25,6 +27,7 @@ interface VocabItem {
   phonetic?: string | null;
   exampleSentence?: string | null;
   category: string;
+  difficulty?: string;
   createdAt: string;
 }
 
@@ -36,6 +39,7 @@ const DEFAULT_VOCABULARY: VocabItem[] = [
     phonetic: 'koh-ree-AN-der',
     exampleSentence: 'Bhaiya, please put some fresh coriander in the bag.',
     category: 'Market',
+    difficulty: 'BEGINNER',
     createdAt: new Date().toISOString(),
   },
   {
@@ -45,6 +49,7 @@ const DEFAULT_VOCABULARY: VocabItem[] = [
     phonetic: 'DIZ-ee-nis',
     exampleSentence: 'I am feeling some dizziness since this morning.',
     category: 'Health',
+    difficulty: 'INTERMEDIATE',
     createdAt: new Date().toISOString(),
   },
   {
@@ -54,6 +59,7 @@ const DEFAULT_VOCABULARY: VocabItem[] = [
     phonetic: 'HAHR-tee-ist kahn-graj-oo-LAY-shunz',
     exampleSentence: 'Heartiest congratulations to the newlywed couple!',
     category: 'Polite',
+    difficulty: 'INTERMEDIATE',
     createdAt: new Date().toISOString(),
   },
   {
@@ -63,6 +69,7 @@ const DEFAULT_VOCABULARY: VocabItem[] = [
     phonetic: 'BOHR-ding gayt',
     exampleSentence: 'Excuse me, could you tell me where gate number 14 is?',
     category: 'Everyday',
+    difficulty: 'ADVANCED',
     createdAt: new Date().toISOString(),
   },
   {
@@ -72,6 +79,7 @@ const DEFAULT_VOCABULARY: VocabItem[] = [
     phonetic: 'BED-tym STOR-ee',
     exampleSentence: 'Dadi will tell you a wonderful bedtime story tonight.',
     category: 'Family',
+    difficulty: 'BEGINNER',
     createdAt: new Date().toISOString(),
   },
 ];
@@ -80,6 +88,7 @@ export default function VocabularyPage() {
   const { highContrast, soundSpeed } = useAccessibility();
   const [items, setItems] = useState<VocabItem[]>(DEFAULT_VOCABULARY);
   const [loading, setLoading] = useState(true);
+  const [selectedLevel, setSelectedLevel] = useState<ProficiencyTier>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -90,6 +99,7 @@ export default function VocabularyPage() {
   const [newPhonetic, setNewPhonetic] = useState('');
   const [newExample, setNewExample] = useState('');
   const [newCategory, setNewCategory] = useState('Everyday');
+  const [newDifficulty, setNewDifficulty] = useState<'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'>('BEGINNER');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchVocabulary = async () => {
@@ -127,6 +137,7 @@ export default function VocabularyPage() {
           phonetic: newPhonetic.trim() || undefined,
           exampleSentence: newExample.trim() || undefined,
           category: newCategory,
+          difficulty: newDifficulty,
         }),
       });
 
@@ -140,6 +151,7 @@ export default function VocabularyPage() {
         setNewMeaning('');
         setNewPhonetic('');
         setNewExample('');
+        setNewDifficulty('BEGINNER');
       } else {
         alert('Failed to save word. Please try again.');
       }
@@ -174,6 +186,9 @@ export default function VocabularyPage() {
   const categories = ['All', 'Everyday', 'Market', 'Health', 'Family', 'Polite'];
 
   const filteredItems = items.filter((item) => {
+    const itemDiff = (item.difficulty || 'BEGINNER').toLowerCase();
+    const matchesLevel =
+      selectedLevel === 'all' || itemDiff === selectedLevel.toLowerCase();
     const matchesCategory =
       selectedCategory === 'All' ||
       item.category.toLowerCase() === selectedCategory.toLowerCase();
@@ -181,7 +196,7 @@ export default function VocabularyPage() {
       item.word.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.hindiMeaning.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (item.exampleSentence && item.exampleSentence.toLowerCase().includes(searchQuery.toLowerCase()));
-    return matchesCategory && matchesSearch;
+    return matchesLevel && matchesCategory && matchesSearch;
   });
 
   return (
@@ -221,6 +236,12 @@ export default function VocabularyPage() {
           </button>
         </div>
       </div>
+
+      {/* Level Selector */}
+      <LevelSelector
+        selectedTier={selectedLevel}
+        onSelectTier={setSelectedLevel}
+      />
 
       {/* Search and Filters */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
@@ -281,6 +302,7 @@ export default function VocabularyPage() {
             onClick={() => {
               setSearchQuery('');
               setSelectedCategory('All');
+              setSelectedLevel('all');
             }}
             className="mt-6 px-6 py-2.5 bg-emerald-600 text-white rounded-xl font-bold"
           >
@@ -308,15 +330,18 @@ export default function VocabularyPage() {
                       {item.hindiMeaning}
                     </p>
                   </div>
-                  <span
-                    className={`text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md shrink-0 ${
-                      highContrast
-                        ? 'bg-slate-800 text-emerald-300'
-                        : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                    }`}
-                  >
-                    {item.category}
-                  </span>
+                  <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
+                    <TierBadge level={item.difficulty || 'BEGINNER'} />
+                    <span
+                      className={`text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md shrink-0 ${
+                        highContrast
+                          ? 'bg-slate-800 text-emerald-300'
+                          : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                      }`}
+                    >
+                      {item.category}
+                    </span>
+                  </div>
                 </div>
 
                 {item.phonetic && (
@@ -420,7 +445,24 @@ export default function VocabularyPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-bold mb-1">Level • स्तर</label>
+                  <select
+                    value={newDifficulty}
+                    onChange={(e) => setNewDifficulty(e.target.value as any)}
+                    className={`w-full px-4 py-3 rounded-xl border-2 text-base font-medium focus:outline-none focus:ring-4 ${
+                      highContrast
+                        ? 'bg-slate-950 border-white text-white'
+                        : 'bg-slate-50 border-slate-200'
+                    }`}
+                  >
+                    <option value="BEGINNER">🟢 शुरुआती (Beginner)</option>
+                    <option value="INTERMEDIATE">🟡 मध्यम (Intermediate)</option>
+                    <option value="ADVANCED">🔴 उन्नत (Advanced)</option>
+                  </select>
+                </div>
+
                 <div>
                   <label className="block text-sm font-bold mb-1">Category • वर्ग</label>
                   <select
@@ -452,8 +494,7 @@ export default function VocabularyPage() {
                         ? 'bg-slate-950 border-white text-white'
                         : 'bg-slate-50 border-slate-200'
                     }`}
-                  >
-                  </input>
+                  />
                 </div>
               </div>
 
