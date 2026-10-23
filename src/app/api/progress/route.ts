@@ -20,14 +20,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
+    const userConditions = [];
+    if (targetUserId) userConditions.push({ id: targetUserId });
+    if (authUser?.email) userConditions.push({ email: authUser.email });
+    if (!authUser && !targetUserId) userConditions.push({ email: 'shanti.devi@boloenglish.com' });
+
     let user = await prisma.user.findFirst({
-      where: {
-        OR: [
-          targetUserId ? { id: targetUserId } : {},
-          authUser ? { email: authUser.email } : {},
-          !authUser && !targetUserId ? { email: 'shanti.devi@boloenglish.com' } : {},
-        ],
-      },
+      where: userConditions.length > 0 ? { OR: userConditions } : { email: 'shanti.devi@boloenglish.com' },
       include: {
         sessions: {
           include: {
