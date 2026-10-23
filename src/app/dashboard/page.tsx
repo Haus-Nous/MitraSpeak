@@ -28,7 +28,14 @@ export default function DashboardPage() {
   const [data, setData] = useState<any | null>(null);
 
   useEffect(() => {
-    fetch('/api/progress')
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+    const savedUser = typeof window !== 'undefined' && localStorage.getItem('user')
+      ? JSON.parse(localStorage.getItem('user')!)
+      : null;
+
+    fetch('/api/progress', {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
       .then((res) => {
         if (!res.ok) return null;
         return res.json();
@@ -37,27 +44,26 @@ export default function DashboardPage() {
         if (resData && resData.stats) {
           setData(resData);
         } else {
-          // Demo fallback state
           setData({
             stats: {
-              userName: 'Shanti Devi',
-              streakCount: 7,
-              totalPoints: 640,
-              level: 4,
-              nextLevelPoints: 800,
-              currentLevelProgress: 40,
-              totalSessions: 5,
-              totalVocabCount: 12,
-              totalMessagesExchanged: 38,
+              userName: savedUser?.name || 'नया शिक्षार्थी (Learner)',
+              streakCount: 1,
+              totalPoints: 100,
+              level: 1,
+              nextLevelPoints: 200,
+              currentLevelProgress: 50,
+              totalSessions: 0,
+              totalVocabCount: 0,
+              totalMessagesExchanged: 0,
               dailyGoalMinutes: 15,
-              todayMinutesSpent: 12,
+              todayMinutesSpent: 0,
               curriculumProgress: [
                 {
                   level: 'level_0',
-                  completed: true,
-                  score: 95,
-                  svoMastery: 5,
-                  auxiliaryMastery: { is: true, am: true, are: true, was: true, were: false },
+                  completed: false,
+                  score: 0,
+                  svoMastery: 0,
+                  auxiliaryMastery: { is: true, am: true, are: false, was: false, were: false },
                 },
               ],
             },

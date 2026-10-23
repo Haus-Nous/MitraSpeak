@@ -34,35 +34,54 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    fetch('/api/auth/me')
-      .then((res) => res.json())
+    // Check localStorage first for instant display
+    if (typeof window !== 'undefined') {
+      const savedUser = localStorage.getItem('user');
+      if (savedUser) {
+        try {
+          setUser(JSON.parse(savedUser));
+        } catch (e) {}
+      }
+    }
+
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+    fetch('/api/auth/me', {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error('Unauthenticated');
+        return res.json();
+      })
       .then((data) => {
         if (data.authenticated && data.user) {
           setUser(data.user);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('user', JSON.stringify(data.user));
+          }
         } else {
-          // Default fallback to Shanti Devi
-          setUser({
-            name: 'Shanti Devi',
-            email: 'shanti.devi@boloenglish.com',
-            streakCount: 7,
-            totalPoints: 640,
-            role: 'LEARNER',
-          });
+          setUser(null);
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('user');
+            localStorage.removeItem('auth_token');
+          }
         }
       })
       .catch(() => {
-        setUser({
-          name: 'Shanti Devi',
-          email: 'shanti.devi@boloenglish.com',
-          streakCount: 7,
-          totalPoints: 640,
-          role: 'LEARNER',
-        });
+        // If unauthenticated or network error and no local saved user, stay null
+        if (typeof window !== 'undefined' && !localStorage.getItem('user')) {
+          setUser(null);
+        }
       });
   }, [pathname]);
 
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (e) {}
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('user');
+      localStorage.removeItem('auth_token');
+    }
     setUser(null);
     router.push('/login');
     router.refresh();
@@ -268,16 +287,30 @@ export default function Navbar() {
               </button>
             </div>
 
+            {/* App Install Button */}
+            <Link
+              href="/install"
+              title="Install App on Phone"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-200 border border-emerald-300 dark:border-emerald-800 transition-colors"
+            >
+              <span>📲</span>
+              <span>ऐप डाउनलोड</span>
+            </Link>
+
             {/* User Session Profile & Switcher */}
             {user ? (
               <div className="flex items-center gap-2">
-                <span className="hidden xl:inline-block text-sm font-bold truncate max-w-[120px] text-emerald-950 dark:text-emerald-100">
-                  {user.name.split(' ')[0]}
+                <span
+                  title={user.email}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-slate-800 text-xs sm:text-sm font-bold truncate max-w-[140px] text-emerald-950 dark:text-emerald-100 border border-emerald-200 dark:border-slate-700"
+                >
+                  <UserIcon className="w-3.5 h-3.5 text-emerald-600" />
+                  <span className="truncate">{user.name}</span>
                 </span>
                 <button
                   type="button"
                   onClick={handleLogout}
-                  title="Sign Out"
+                  title="Sign Out (खाता बदलें / बाहर निकलें)"
                   aria-label="Sign out of account"
                   className="p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-rose-50 hover:text-rose-600 transition-colors"
                 >
@@ -285,13 +318,21 @@ export default function Navbar() {
                 </button>
               </div>
             ) : (
-              <Link
-                href="/login"
-                className="px-4 py-2.5 rounded-xl font-bold text-sm bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm flex items-center gap-1.5"
-              >
-                <LogIn className="w-4 h-4" />
-                <span>प्रवेश (Sign In)</span>
-              </Link>
+              <div className="flex items-center gap-1.5">
+                <Link
+                  href="/login"
+                  className="px-3 sm:px-4 py-2 rounded-xl font-bold text-xs sm:text-sm border border-emerald-600 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 transition-colors flex items-center gap-1"
+                >
+                  <LogIn className="w-3.5 h-3.5" />
+                  <span>प्रवेश</span>
+                </Link>
+                <Link
+                  href="/register"
+                  className="px-3 sm:px-4 py-2 rounded-xl font-bold text-xs sm:text-sm bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm flex items-center gap-1 transition-colors"
+                >
+                  <span>खाता बनाएँ</span>
+                </Link>
+              </div>
             )}
 
             {/* Mobile Hamburger Menu Toggle */}

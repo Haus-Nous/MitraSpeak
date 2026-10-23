@@ -32,6 +32,12 @@ export default function RegisterPage() {
       if (!res.ok) {
         setError(data.error || 'Registration failed. Please check your details.');
       } else {
+        if (data.token) {
+          localStorage.setItem('auth_token', data.token);
+        }
+        if (data.user) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+        }
         router.push('/dashboard');
         router.refresh();
       }

@@ -31,6 +31,12 @@ export default function LoginPage() {
       if (!res.ok) {
         setError(data.error || 'Login failed. Please verify your credentials.');
       } else {
+        if (data.token) {
+          localStorage.setItem('auth_token', data.token);
+        }
+        if (data.user) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+        }
         if (data.user?.role === 'ADMIN') {
           router.push('/admin');
         } else {
@@ -47,11 +53,11 @@ export default function LoginPage() {
 
   const fillDemo = (role: 'learner' | 'admin') => {
     if (role === 'learner') {
-      setEmail('learner@mitraspeak.com');
-      setPassword('LearnerPass123!');
+      setEmail('shanti.devi@boloenglish.com');
+      setPassword('BoloPass123!');
     } else {
-      setEmail('admin@mitraspeak.com');
-      setPassword('AdminPass123!');
+      setEmail('aarti.didi@boloenglish.com');
+      setPassword('BoloPass123!');
     }
   };
 
