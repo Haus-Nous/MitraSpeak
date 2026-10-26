@@ -317,26 +317,42 @@ export default function ScenarioChatRoom() {
           <div ref={chatBottomRef} />
         </div>
 
-        {/* Live Audio Waveform Simulation Visualizer */}
-        {isRecording && (
-          <div className="p-3 bg-white/95 dark:bg-slate-900 border-t border-emerald-200">
-            <AudioWaveform
-              isRecording={isRecording}
-              onToggleRecording={() => setIsRecording(!isRecording)}
-              onRecordingComplete={(sec) => {
-                setIsRecording(false);
-                // Pre-fill realistic sample prompt if empty
-                if (!inputText) {
-                  if (scenario.slug === 'sabzi-mandi') {
-                    setInputText('Bhaiya, give me 1 kg fresh tamatar please.');
-                  } else if (scenario.slug === 'clinic-visit') {
-                    setInputText('Doctor, I have had a continuous knee pain for two days.');
-                  } else {
-                    setInputText('Thank you, this is very good.');
-                  }
-                }
-              }}
-            />
+        {/* Helpful Scenario Response Suggestions / Quick Chips */}
+        {scenario && (
+          <div className="px-4 py-2 bg-emerald-50/80 dark:bg-slate-800/80 border-t border-emerald-100 dark:border-slate-700 flex items-center gap-2 overflow-x-auto text-xs no-scrollbar">
+            <span className="font-bold text-emerald-800 dark:text-emerald-300 flex-shrink-0">
+              💡 सुझाव (Tap or Speak):
+            </span>
+            {(scenario.slug === 'sabzi-mandi'
+              ? [
+                  'Bhaiya, give me 1 kg fresh tamatar please.',
+                  'What is the price of potatoes?',
+                  'Can you give me some fresh dhaniya with this?',
+                ]
+              : scenario.slug === 'clinic-visit'
+              ? [
+                  'Doctor, I have had a continuous headache since morning.',
+                  'Should I take this medicine before or after meals?',
+                  'Thank you Doctor, I will take rest.',
+                ]
+              : [
+                  'Hello! How can I help you today?',
+                  'Could you please assist me with this?',
+                  'Thank you very much for your help.',
+                ]
+            ).map((sugg, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => {
+                  setInputText(sugg);
+                  handleSendMessage(sugg);
+                }}
+                className="px-3 py-1.5 rounded-full bg-white dark:bg-slate-900 border border-emerald-300 dark:border-slate-600 font-semibold text-emerald-900 dark:text-emerald-200 whitespace-nowrap shadow-sm hover:bg-emerald-100 active:scale-95 transition-all"
+              >
+                &ldquo;{sugg}&rdquo;
+              </button>
+            ))}
           </div>
         )}
 
@@ -348,11 +364,19 @@ export default function ScenarioChatRoom() {
               : 'bg-white dark:bg-slate-900 border-slate-200'
           }`}
         >
-          {/* Big Central WhatsApp Mic Button */}
+          {/* Big Central WhatsApp Mic Button with Web Speech Recognition */}
           <WhatsAppVoiceButton
             isRecording={isRecording}
-            onToggleRecording={() => setIsRecording(!isRecording)}
+            onToggleRecording={(rec) => setIsRecording(rec)}
+            onSpeechRecognized={(spokenTranscript) => {
+              setInputText(spokenTranscript);
+              handleSendMessage(spokenTranscript);
+            }}
+            onInterimSpeech={(interim) => {
+              setInputText(interim);
+            }}
             disabled={isSending}
+            label="बोलने के लिए माइक दबाएं (Tap Mic to Speak)"
           />
 
           {/* Text Input Row for Convenience */}

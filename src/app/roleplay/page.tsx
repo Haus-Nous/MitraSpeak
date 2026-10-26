@@ -14,6 +14,7 @@ import {
   HeartPulse,
 } from 'lucide-react';
 import AudioWaveform from '@/components/AudioWaveform';
+import WhatsAppVoiceButton from '@/components/WhatsAppVoiceButton';
 import SpeechPlayer from '@/components/SpeechPlayer';
 import { useAccessibility } from '@/components/ui/AccessibilityProvider';
 
@@ -304,14 +305,34 @@ export default function RoleplaySimulatorPage() {
         </div>
 
         {/* Input Bar */}
-        <div className="pt-4 border-t border-slate-200/60 space-y-3">
+        <div className="pt-4 border-t border-slate-200/60 space-y-4">
+          {/* Central Voice Button */}
+          <div className="flex flex-col items-center justify-center">
+            <WhatsAppVoiceButton
+              isRecording={isRecording}
+              onToggleRecording={(rec) => setIsRecording(rec)}
+              onSpeechRecognized={(spokenTranscript) => {
+                setInputMessage(spokenTranscript);
+                handleSendMessage(spokenTranscript);
+              }}
+              onInterimSpeech={(interim) => {
+                setInputMessage(interim);
+              }}
+              disabled={isSubmitting}
+              label="बोलने के लिए माइक दबाएं (Tap to Speak)"
+            />
+          </div>
+
           {/* Quick Suggested Phrasing Pill */}
           <div className="flex items-center gap-2 text-xs">
             <span className="font-bold opacity-70">Suggested Response:</span>
             <button
               type="button"
-              onClick={() => setInputMessage(selectedScenario.samplePrompt)}
-              className="text-primary-600 dark:text-primary-400 underline font-medium truncate max-w-md text-left"
+              onClick={() => {
+                setInputMessage(selectedScenario.samplePrompt);
+                handleSendMessage(selectedScenario.samplePrompt);
+              }}
+              className="text-primary-600 dark:text-primary-400 underline font-medium truncate max-w-md text-left hover:opacity-80"
             >
               &ldquo;{selectedScenario.samplePrompt}&rdquo;
             </button>
@@ -328,7 +349,7 @@ export default function RoleplaySimulatorPage() {
               type="text"
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="Type your response or press 'Start Speaking' above..."
+              placeholder="या यहाँ लिखकर भेजें (Or type response here)..."
               className={`flex-1 px-5 py-4 rounded-xl border-2 font-medium min-h-[52px] text-base focus:outline-none focus:ring-4 ${
                 highContrast
                   ? 'bg-slate-800 border-amber-400 text-white focus:ring-amber-200'
